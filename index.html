@@ -191,8 +191,138 @@
       .home-title { font-size: 1.55rem; }
     }
     #screen-home .menu-wrap {
-      justify-content: flex-start;
-      overflow-y: auto;
+      justify-content: center;
+      overflow: hidden;
+      gap: clamp(8px, 1.6vh, 16px);
+    }
+
+    .world-home {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(10px, 1.6vw, 18px);
+      align-content: center;
+      align-items: center;
+    }
+
+    .world-btn {
+      appearance: none;
+      border: none;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 10px 10px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1.22;
+      max-height: 100%;
+    }
+    .world-btn:active { transform: scale(0.97); }
+    .world-btn img {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      object-fit: contain;
+      border-radius: 18px;
+      background:
+        radial-gradient(120px 80px at 50% 30%, rgba(255,255,255,.65), transparent 70%),
+        #f6f1e6;
+      pointer-events: none;
+    }
+    .world-btn .label {
+      font-size: clamp(1.05rem, 2.1vw, 1.45rem);
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .entry-grid {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: minmax(140px, 1fr);
+      gap: clamp(12px, 2vw, 20px);
+    }
+    .entry-grid.count-3 {
+      max-width: 1100px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .entry-btn {
+      appearance: none;
+      border: 4px solid transparent;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 14px 12px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 0;
+      min-width: 0;
+    }
+    .entry-btn:active { transform: scale(0.97); }
+    .entry-btn:hover, .entry-btn:focus-visible { border-color: #9fd4b0; }
+    .entry-btn img {
+      width: min(78%, 280px);
+      height: clamp(96px, 22vh, 200px);
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .entry-btn .label {
+      font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    @media (max-width: 1000px) and (min-width: 701px) {
+      .world-home { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .world-btn:nth-child(-n+3) { grid-column: span 2; }
+      .world-btn:nth-child(n+4) { grid-column: span 3; }
+    }
+    @media (max-width: 700px), (max-height: 520px) {
+      #screen-home .menu-wrap {
+        justify-content: flex-start;
+        overflow-y: auto;
+      }
+      .world-home {
+        flex: none;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .world-btn {
+        height: auto;
+        aspect-ratio: auto;
+        min-height: 188px;
+        grid-column: auto !important;
+      }
+      .world-btn img { height: 132px; flex: none; }
+      .entry-grid,
+      .entry-grid.count-3 {
+        flex: none;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: auto;
+      }
+      .entry-btn { min-height: 176px; }
     }
     .type-btn.soon {
       opacity: 0.92;
@@ -2121,69 +2251,53 @@
     <section class="screen active" id="screen-home" aria-label="בית">
       <div class="menu-wrap">
         <h1 class="home-title">משחקים</h1>
-        <p class="home-sub">בחרו משחק · אין צורך לדבר</p>
-        <div class="type-grid" id="type-grid">
-          <button class="type-btn" type="button" data-go="match-hub">
-            <img class="type-icon" src="assets/cat.png" alt="" draggable="false" />
-            <span class="label">התאמה</span>
+        <p class="home-sub">בחרו עולם · אין צורך לדבר</p>
+        <div class="world-home" id="world-home">
+          <button class="world-btn" type="button" data-world="animals">
+            <img src="assets/world_animals.png" alt="" draggable="false" />
+            <span class="label">חיות</span>
           </button>
-          <button class="type-btn" type="button" data-go="choose-hub">
-            <img class="type-icon" src="assets/dog.png" alt="" draggable="false" />
-            <span class="label">בחירה</span>
+          <button class="world-btn" type="button" data-world="food">
+            <img src="assets/world_food.png" alt="" draggable="false" />
+            <span class="label">אוכל</span>
           </button>
-          <button class="type-btn" type="button" data-go="sequence-hub">
-            <img class="type-icon" src="assets/seq_wake.png" alt="" draggable="false" />
-            <span class="label">רצף</span>
+          <button class="world-btn" type="button" data-world="home">
+            <img src="assets/world_home.png" alt="" draggable="false" />
+            <span class="label">בית</span>
           </button>
-          <button class="type-btn" type="button" data-go="categories-hub">
-            <img class="type-icon" src="assets/bin_animals.png" alt="" draggable="false" />
-            <span class="label">קטגוריות</span>
+          <button class="world-btn" type="button" data-world="shapes">
+            <img src="assets/world_shapes.png" alt="" draggable="false" />
+            <span class="label">צורות וצבעים</span>
           </button>
-          <button class="type-btn" type="button" data-go="quiz-hub">
-            <img class="type-icon" src="assets/quiz_cat_ear.png" alt="" draggable="false" />
-            <span class="label">חידון ויזואלי</span>
-          </button>
-          <button class="type-btn" type="button" data-go="sort-hub">
-            <img class="type-icon" src="assets/food_basket.png" alt="" draggable="false" />
-            <span class="label">מיון</span>
-          </button>
-          <button class="type-btn" type="button" data-go="assoc-hub">
-            <img class="type-icon" src="assets/bone.png" alt="" draggable="false" />
-            <span class="label">מה הולך עם מה</span>
-          </button>
-          <button class="type-btn" type="button" data-go="pattern-hub">
-            <img class="type-icon" src="assets/shape_circle.png" alt="" draggable="false" />
-            <span class="label">המשך את הדפוס</span>
-          </button>
-          <button class="type-btn" type="button" data-go="size-hub">
-            <img class="type-icon" src="assets/size_ball_big.png" alt="" draggable="false" />
-            <span class="label">מגדול לקטן</span>
-          </button>
-          <button class="type-btn" type="button" data-go="puzzle-hub">
-            <img class="type-icon" src="assets/puzzle_dog_head.png" alt="" draggable="false" />
-            <span class="label">פאזל</span>
-          </button>
-          <button class="type-btn" type="button" data-go="sd-hub">
-            <img class="type-icon" src="assets/sd_duck_bow.png" alt="" draggable="false" />
-            <span class="label">אותו / שונה</span>
-          </button>
-          <button class="type-btn" type="button" data-go="close-hub">
-            <img class="type-icon" src="assets/close_house_gap.png" alt="" draggable="false" />
-            <span class="label">השלם את התמונה</span>
-          </button>
-          <button class="type-btn" type="button" data-go="emo-hub">
-            <img class="type-icon" src="assets/emo_happy.png" alt="" draggable="false" />
-            <span class="label">רגשות</span>
-          </button>
-          <button class="type-btn" type="button" data-go="ft-hub">
-            <img class="type-icon" src="assets/ft_wake.png" alt="" draggable="false" />
-            <span class="label">קודם… אחר כך…</span>
-          </button>
-          <button class="type-btn" type="button" data-go="qty-hub">
-            <img class="type-icon" src="assets/qty_apple_2.png" alt="" draggable="false" />
-            <span class="label">כמה?</span>
+          <button class="world-btn" type="button" data-world="play">
+            <img src="assets/world_play.png" alt="" draggable="false" />
+            <span class="label">משחק</span>
           </button>
         </div>
+      </div>
+    </section>
+
+    <!-- WORLD: packs that belong to the chosen picture-world -->
+    <section class="screen" id="screen-world" aria-label="עולם">
+      <header>
+        <button class="nav-btn" type="button" id="world-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="world-title">עולם</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="entry-grid" id="world-grid"></div>
+      </div>
+    </section>
+
+    <!-- WORLD PACKS: only when one tile still holds two packs -->
+    <section class="screen" id="screen-world-packs" aria-label="ערכות">
+      <header>
+        <button class="nav-btn" type="button" id="world-packs-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="world-packs-title">בחרו</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="entry-grid" id="world-packs-grid"></div>
       </div>
     </section>
 
@@ -6678,7 +6792,7 @@
 
       // ---- Navigation wiring ----
       document.addEventListener("click", (e) => {
-        const btn = e.target.closest("button.type-btn, button.pack-btn, button.nav-btn, button.btn");
+        const btn = e.target.closest("button.world-btn, button.entry-btn, button.pack-btn, button.nav-btn, button.btn");
         if (!btn) return;
         sfx.tap();
       });
@@ -6702,122 +6816,202 @@
         }
       });
 
-      document.getElementById("type-grid").addEventListener("click", (e) => {
-        const btn = e.target.closest(".type-btn");
+      // Picture worlds. Each pack stays on its engine; only the path to it changes.
+      // A tile with one pack starts play. A tile with two packs opens a short list.
+      const WORLDS = [
+        {
+          id: "animals",
+          label: "חיות",
+          entries: [
+            { label: "התאמה", icon: "assets/cat.png", activity: "match", packId: "animals" },
+            { label: "מה שייך?", icon: "assets/milk.png", activity: "choose", packId: "animalsBelong" },
+            { label: "קבוצות", icon: "assets/bin_animals.png", activity: "categories", packId: "animalsVehicles" },
+            {
+              label: "חידון",
+              icon: "assets/quiz_elephant.png",
+              packs: [
+                { label: "חלק", icon: "assets/quiz_cat_ear.png", activity: "quiz", packId: "animalsEasy" },
+                { label: "צללית", icon: "assets/quiz_elephant.png", activity: "quiz", packId: "animalSilhouettes" },
+              ],
+            },
+          ],
+        },
+        {
+          id: "food",
+          label: "אוכל",
+          entries: [
+            { label: "למקום", icon: "assets/food_apple.png", activity: "match", packId: "foodPlaces" },
+            { label: "פירות וירקות", icon: "assets/bin_fruits.png", activity: "categories", packId: "fruitsVeggies" },
+            { label: "מיון", icon: "assets/food_basket.png", activity: "sort", packId: "foodAnimals" },
+            { label: "כמה?", icon: "assets/qty_apple_3.png", activity: "qty", packId: "apples" },
+          ],
+        },
+        {
+          id: "home",
+          label: "בית",
+          entries: [
+            { label: "ביחד", icon: "assets/bone.png", activity: "assoc", packId: "home" },
+            {
+              label: "יום",
+              icon: "assets/ft_wake.png",
+              packs: [
+                { label: "בוקר", icon: "assets/ft_wake.png", activity: "ft", packId: "morning" },
+                { label: "יום של כלב", icon: "assets/seq_wake.png", activity: "sequence", packId: "dogDay" },
+              ],
+            },
+            { label: "רכב", icon: "assets/car.png", activity: "match", packId: "vehicles" },
+            { label: "השלם", icon: "assets/close_house.png", activity: "close", packId: "easy" },
+          ],
+        },
+        {
+          id: "shapes",
+          label: "צורות וצבעים",
+          entries: [
+            {
+              label: "התאמה",
+              icon: "assets/shape_star.png",
+              packs: [
+                { label: "צורות", icon: "assets/shape_circle.png", activity: "match", packId: "shapes" },
+                { label: "צבעים", icon: "assets/color_red_ball.png", activity: "match", packId: "colors" },
+              ],
+            },
+            { label: "דפוס", icon: "assets/shape_circle.png", activity: "pattern", packId: "colorsShapes" },
+            { label: "כדורים", icon: "assets/size_ball_big.png", activity: "size", packId: "balls" },
+            { label: "דומה", icon: "assets/sd_duck_bow.png", activity: "sd", packId: "easy" },
+          ],
+        },
+        {
+          id: "play",
+          label: "משחק",
+          entries: [
+            { label: "פאזל", icon: "assets/puzzle_dog_head.png", activity: "puzzle", packId: "dog" },
+            { label: "פנים", icon: "assets/emo_happy.png", activity: "emo", packId: "happySad" },
+            { label: "לא שייך", icon: "assets/odd_teddy.png", activity: "choose", packId: "oddOneOut" },
+          ],
+        },
+      ];
+
+      let playReturn = "home";
+
+      const launchPack = {
+        match: startPack,
+        choose: startChoosePack,
+        sequence: startSequencePack,
+        categories: startCategoriesPack,
+        quiz: startQuizPack,
+        sort: startSortPack,
+        assoc: startAssocPack,
+        pattern: startPatternPack,
+        size: startSizePack,
+        puzzle: startPuzzlePack,
+        sd: startSdPack,
+        close: startClosePack,
+        emo: startEmoPack,
+        ft: startFtPack,
+        qty: startQtyPack,
+      };
+
+      function entryButton(entry, onClick) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "entry-btn";
+        btn.setAttribute("aria-label", entry.label);
+        const img = document.createElement("img");
+        img.src = entry.icon;
+        img.alt = "";
+        img.draggable = false;
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = entry.label;
+        btn.appendChild(img);
+        btn.appendChild(label);
+        btn.addEventListener("click", onClick);
+        return btn;
+      }
+
+      function startEntry(entry) {
+        launchPack[entry.activity](entry.packId);
+      }
+
+      function fillEntryGrid(grid, items, onPick) {
+        grid.className = "entry-grid count-" + items.length;
+        grid.innerHTML = "";
+        items.forEach((entry) => {
+          grid.appendChild(entryButton(entry, () => onPick(entry)));
+        });
+      }
+
+      function showWorldPacks(entry) {
+        document.getElementById("world-packs-title").textContent = entry.label;
+        fillEntryGrid(document.getElementById("world-packs-grid"), entry.packs, (pack) => {
+          playReturn = "world-packs";
+          startEntry(pack);
+        });
+        showScreen("world-packs");
+      }
+
+      function showWorld(world) {
+        const direct = world.entries.length === 1 && world.entries[0].activity;
+        if (direct) {
+          playReturn = "home";
+          startEntry(world.entries[0]);
+          return;
+        }
+        document.getElementById("world-title").textContent = world.label;
+        fillEntryGrid(document.getElementById("world-grid"), world.entries, (entry) => {
+          if (entry.packs && entry.packs.length > 1) {
+            showWorldPacks(entry);
+            return;
+          }
+          playReturn = "world";
+          startEntry(entry.activity ? entry : entry.packs[0]);
+        });
+        showScreen("world");
+      }
+
+      document.getElementById("world-home").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-world]");
         if (!btn) return;
-        if (btn.dataset.go === "match-hub") {
-          activity = "match";
-          showScreen("match-hub");
-          return;
-        }
-        if (btn.dataset.go === "choose-hub") {
-          activity = "choose";
-          showScreen("choose-hub");
-          return;
-        }
-        if (btn.dataset.go === "sequence-hub") {
-          activity = "sequence";
-          showScreen("sequence-hub");
-          return;
-        }
-        if (btn.dataset.go === "categories-hub") {
-          activity = "categories";
-          showScreen("categories-hub");
-          return;
-        }
-        if (btn.dataset.go === "quiz-hub") {
-          activity = "quiz";
-          showScreen("quiz-hub");
-          return;
-        }
-        if (btn.dataset.go === "sort-hub") {
-          activity = "sort";
-          showScreen("sort-hub");
-          return;
-        }
-        if (btn.dataset.go === "assoc-hub") {
-          activity = "assoc";
-          showScreen("assoc-hub");
-          return;
-        }
-        if (btn.dataset.go === "pattern-hub") {
-          activity = "pattern";
-          showScreen("pattern-hub");
-          return;
-        }
-        if (btn.dataset.go === "size-hub") {
-          activity = "size";
-          showScreen("size-hub");
-          return;
-        }
-        if (btn.dataset.go === "puzzle-hub") {
-          activity = "puzzle";
-          showScreen("puzzle-hub");
-          return;
-        }
-        if (btn.dataset.go === "sd-hub") {
-          activity = "sd";
-          showScreen("sd-hub");
-          return;
-        }
-        if (btn.dataset.go === "close-hub") {
-          activity = "close";
-          showScreen("close-hub");
-          return;
-        }
-        if (btn.dataset.go === "emo-hub") {
-          activity = "emo";
-          showScreen("emo-hub");
-          return;
-        }
-        if (btn.dataset.go === "ft-hub") {
-          activity = "ft";
-          showScreen("ft-hub");
-          return;
-        }
-        if (btn.dataset.go === "qty-hub") {
-          activity = "qty";
-          showScreen("qty-hub");
-          return;
-        }
-        if (btn.dataset.stub) {
-          document.getElementById("soon-title").textContent = btn.dataset.stub;
-          document.getElementById("soon-heading").textContent = btn.dataset.stub;
-          document.getElementById("soon-emoji").textContent = btn.dataset.emoji || "✨";
-          showScreen("soon");
-        }
+        const world = WORLDS.find((w) => w.id === btn.dataset.world);
+        if (world) showWorld(world);
       });
 
+      function backToList() {
+        showScreen(playReturn);
+      }
+
+      document.getElementById("world-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("world-packs-back").addEventListener("click", () => showScreen("world"));
       document.getElementById("hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("play-back").addEventListener("click", () => showScreen("match-hub"));
+      document.getElementById("play-back").addEventListener("click", backToList);
       document.getElementById("choose-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("choose-play-back").addEventListener("click", () => showScreen("choose-hub"));
+      document.getElementById("choose-play-back").addEventListener("click", backToList);
       document.getElementById("sequence-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("sequence-play-back").addEventListener("click", () => showScreen("sequence-hub"));
+      document.getElementById("sequence-play-back").addEventListener("click", backToList);
       document.getElementById("categories-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("categories-play-back").addEventListener("click", () => showScreen("categories-hub"));
+      document.getElementById("categories-play-back").addEventListener("click", backToList);
       document.getElementById("quiz-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("quiz-play-back").addEventListener("click", () => showScreen("quiz-hub"));
+      document.getElementById("quiz-play-back").addEventListener("click", backToList);
       document.getElementById("sort-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("sort-play-back").addEventListener("click", () => showScreen("sort-hub"));
+      document.getElementById("sort-play-back").addEventListener("click", backToList);
       document.getElementById("assoc-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("assoc-play-back").addEventListener("click", () => showScreen("assoc-hub"));
+      document.getElementById("assoc-play-back").addEventListener("click", backToList);
       document.getElementById("pattern-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("pattern-play-back").addEventListener("click", () => showScreen("pattern-hub"));
+      document.getElementById("pattern-play-back").addEventListener("click", backToList);
       document.getElementById("size-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("size-play-back").addEventListener("click", () => showScreen("size-hub"));
+      document.getElementById("size-play-back").addEventListener("click", backToList);
       document.getElementById("puzzle-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("puzzle-play-back").addEventListener("click", () => showScreen("puzzle-hub"));
+      document.getElementById("puzzle-play-back").addEventListener("click", backToList);
       document.getElementById("sd-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("sd-play-back").addEventListener("click", () => showScreen("sd-hub"));
+      document.getElementById("sd-play-back").addEventListener("click", backToList);
       document.getElementById("close-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("close-play-back").addEventListener("click", () => showScreen("close-hub"));
+      document.getElementById("close-play-back").addEventListener("click", backToList);
       document.getElementById("emo-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("emo-play-back").addEventListener("click", () => showScreen("emo-hub"));
+      document.getElementById("emo-play-back").addEventListener("click", backToList);
       document.getElementById("ft-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("ft-play-back").addEventListener("click", () => showScreen("ft-hub"));
+      document.getElementById("ft-play-back").addEventListener("click", backToList);
       document.getElementById("qty-hub-back").addEventListener("click", () => showScreen("home"));
-      document.getElementById("qty-play-back").addEventListener("click", () => showScreen("qty-hub"));
+      document.getElementById("qty-play-back").addEventListener("click", backToList);
       document.getElementById("soon-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("soon-home").addEventListener("click", () => showScreen("home"));
 
@@ -6842,23 +7036,7 @@
 
       document.getElementById("celebrate-hub").addEventListener("click", () => {
         celebrate.classList.remove("show");
-        const hub = {
-          choose: "choose-hub",
-          sequence: "sequence-hub",
-          categories: "categories-hub",
-          quiz: "quiz-hub",
-          sort: "sort-hub",
-          assoc: "assoc-hub",
-          pattern: "pattern-hub",
-          size: "size-hub",
-          puzzle: "puzzle-hub",
-          sd: "sd-hub",
-          close: "close-hub",
-          emo: "emo-hub",
-          ft: "ft-hub",
-          qty: "qty-hub",
-        }[activity] || "match-hub";
-        showScreen(hub);
+        showScreen(playReturn);
       });
       document.getElementById("celebrate-home").addEventListener("click", () => {
         celebrate.classList.remove("show");
