@@ -523,6 +523,7 @@
     }
 
     .choose-prompt {
+      position: relative;
       width: min(42vw, 280px);
       aspect-ratio: 1.35;
       max-height: 34vh;
@@ -535,7 +536,14 @@
       border: 4px solid #9fd4b0;
       padding: 10px;
       flex-shrink: 0;
+      overflow: hidden;
       transition: border-color .25s, box-shadow .25s, background .25s, transform .25s;
+    }
+    .choose-prompt.over {
+      border-color: #7dcea0;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.22), var(--shadow);
+      transform: scale(1.03);
+      background: #f3fff6;
     }
     .choose-prompt img {
       width: 100%;
@@ -561,27 +569,48 @@
       min-height: 0;
     }
 
-    .choice-card {
-      appearance: none;
-      border: 4px solid transparent;
+    .choice-slot {
+      position: relative;
       background: var(--card);
       border-radius: 26px;
       box-shadow: var(--shadow);
-      padding: clamp(8px, 1.5vw, 14px);
-      cursor: pointer;
-      font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
       aspect-ratio: 1.2;
       min-height: clamp(110px, 22vh, 200px);
       max-height: 28vh;
-      transition: transform .15s, border-color .2s, box-shadow .2s, background .2s;
-      position: relative;
       overflow: hidden;
+      border: 4px solid transparent;
+    }
+    .choice-slot.empty {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f3efe6,
+        #f3efe6 10px,
+        #efe9de 10px,
+        #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+    .choice-card {
+      position: absolute;
+      inset: 6%;
+      border: 4px solid transparent;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow .2s, transform .15s, border-color .2s, background .2s;
+      will-change: transform;
       -webkit-user-select: none;
       user-select: none;
     }
+    .choice-card:active { cursor: grabbing; }
     .choice-card img {
       width: 92%;
       height: 92%;
@@ -589,8 +618,26 @@
       pointer-events: none;
       border-radius: 14px;
     }
-    .choice-card:active:not(:disabled) { transform: scale(0.96); }
-    .choice-card:disabled { cursor: default; }
+    .choice-card.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      opacity: 0.98;
+      cursor: grabbing;
+      pointer-events: none;
+    }
+    .choice-card-ghost {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
 
     .choice-card.correct {
       border-color: var(--ok);
@@ -641,7 +688,7 @@
 
     @media (max-height: 560px) {
       .choose-prompt { max-height: 28vh; }
-      .choice-card { min-height: 90px; max-height: 24vh; }
+      .choice-slot { min-height: 90px; max-height: 24vh; }
     }
     @media (orientation: portrait) and (max-width: 700px) {
       .choose-choices { gap: 10px; }
@@ -690,6 +737,12 @@
       filter: brightness(0);
       opacity: 0.78;
     }
+    .quiz-clue.over {
+      border-color: #9fd4b0;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.22), var(--shadow);
+      transform: scale(1.03);
+      background: #f3fff6;
+    }
     .quiz-clue.ok {
       border-color: var(--ok);
       box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
@@ -711,28 +764,49 @@
       min-height: 0;
     }
 
-    .quiz-card {
-      appearance: none;
-      border: 5px solid transparent;
+    .quiz-slot {
+      position: relative;
       background: var(--card);
       border-radius: 28px;
       box-shadow: var(--shadow);
-      padding: clamp(10px, 1.8vw, 16px);
-      cursor: pointer;
-      font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
       aspect-ratio: 1.15;
       min-height: clamp(120px, 24vh, 220px);
       max-height: 30vh;
-      transition: transform .15s, border-color .2s, box-shadow .2s, background .2s;
-      position: relative;
       overflow: hidden;
+      border: 5px solid transparent;
+    }
+    .quiz-slot.empty {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f3efe6,
+        #f3efe6 10px,
+        #efe9de 10px,
+        #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+    .quiz-card {
+      position: absolute;
+      inset: 6%;
+      border: 5px solid transparent;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow .2s, transform .15s, border-color .2s, background .2s;
+      will-change: transform;
       -webkit-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
+    .quiz-card:active { cursor: grabbing; }
     .quiz-card img {
       width: 94%;
       height: 94%;
@@ -740,8 +814,26 @@
       pointer-events: none;
       border-radius: 14px;
     }
-    .quiz-card:active:not(:disabled) { transform: scale(0.96); }
-    .quiz-card:disabled { cursor: default; }
+    .quiz-card.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      opacity: 0.98;
+      cursor: grabbing;
+      pointer-events: none;
+    }
+    .quiz-card-ghost {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
 
     .quiz-card.correct {
       border-color: var(--ok);
@@ -777,7 +869,7 @@
 
     @media (max-height: 560px) {
       .quiz-clue { max-height: 30vh; }
-      .quiz-card { min-height: 96px; max-height: 26vh; }
+      .quiz-slot { min-height: 96px; max-height: 26vh; }
     }
     @media (orientation: portrait) and (max-width: 700px) {
       .quiz-choices { gap: 12px; }
@@ -1164,11 +1256,6 @@
       opacity: 0.98;
       cursor: grabbing;
     }
-    .cat-tile.armed {
-      outline-color: #7eb6e8;
-      box-shadow: 0 0 0 6px rgba(126,182,232,.28), var(--shadow);
-      transform: scale(1.04);
-    }
     .cat-tile.shake {
       animation: softShake .5s ease;
     }
@@ -1183,10 +1270,6 @@
       pointer-events: none;
       filter: grayscale(0.15);
       z-index: 1;
-    }
-    .cat-bin.armed-target {
-      border-color: #7eb6e8;
-      box-shadow: 0 0 0 8px rgba(126,182,232,.22), var(--shadow);
     }
     @media (max-height: 560px) {
       .cat-bin-icon { max-height: 28%; }
@@ -1298,7 +1381,7 @@
         <div class="choose-choices" id="choose-choices" aria-label="אפשרויות"></div>
       </div>
 
-      <p class="hint" id="choose-hint">לחצו על התמונה ששייכת · אין צורך לדבר</p>
+      <p class="hint" id="choose-hint">גררו את התמונה ששייכת · אין צורך לדבר</p>
     </section>
 
 
@@ -1328,7 +1411,7 @@
         <div class="seq-pool" id="seq-pool" aria-label="אריחים"></div>
       </div>
 
-      <p class="hint" id="sequence-hint">גררו או לחצו — יש רמז למעלה</p>
+      <p class="hint" id="sequence-hint">גררו לחריץ — יש רמז למעלה</p>
     </section>
 
 
@@ -1357,7 +1440,7 @@
         <div class="cat-pool" id="cat-pool" aria-label="פריטים"></div>
       </div>
 
-      <p class="hint" id="categories-hint">גררו או לחצו — שייכו לקבוצה</p>
+      <p class="hint" id="categories-hint">גררו לקבוצה · אין צורך לדבר</p>
     </section>
 
 
@@ -1388,7 +1471,7 @@
         <div class="quiz-choices" id="quiz-choices" aria-label="אפשרויות"></div>
       </div>
 
-      <p class="hint" id="quiz-hint">לחצו על החיה שמתאימה · אין צורך לדבר</p>
+      <p class="hint" id="quiz-hint">גררו את החיה שמתאימה · אין צורך לדבר</p>
     </section>
 
     <!-- STUB / בקרוב -->
@@ -1678,22 +1761,22 @@
       let chooseIndex = 0;
       let chooseLocked = false;
       let chooseCorrectCount = 0;
+      let chooseDrag = null;
 
       let currentSequencePack = SEQUENCE_PACKS.dogDay;
       let seqPlaced = new Set(); // step indices placed
       let seqDrag = null;
-      let seqTapArmed = null;
 
       let currentCategoryPack = CATEGORY_PACKS.animalsVehicles;
       let catPlaced = new Set(); // item ids placed
       let catDrag = null;
-      let catTapArmed = null;
 
       let currentQuizPack = QUIZ_PACKS.animalsEasy;
       let quizOrder = [];
       let quizIndex = 0;
       let quizLocked = false;
       let quizCorrectCount = 0;
+      let quizDrag = null;
 
       function showScreen(id) {
         document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
@@ -1721,7 +1804,21 @@
           }
           catDrag = null;
         }
-        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play") {
+        if (id !== "choose-play" && chooseDrag) {
+          clearChooseDragListeners();
+          if (chooseDrag.lifted && chooseDrag.el) {
+            returnChooseToSlot(chooseDrag.el, chooseDrag.fromSlot, false);
+          }
+          chooseDrag = null;
+        }
+        if (id !== "quiz-play" && quizDrag) {
+          clearQuizDragListeners();
+          if (quizDrag.lifted && quizDrag.el) {
+            returnQuizToSlot(quizDrag.el, quizDrag.fromSlot, false);
+          }
+          quizDrag = null;
+        }
+        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play") {
           celebrate.classList.remove("show");
           celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         }
@@ -2028,9 +2125,11 @@
         const ch = document.getElementById("choose-hint");
         const sh = document.getElementById("sequence-hint");
         const cath = document.getElementById("categories-hint");
+        const qh = document.getElementById("quiz-hint");
         if (ch) ch.textContent = "";
         if (sh) sh.textContent = "";
         if (cath) cath.textContent = "";
+        if (qh) qh.textContent = "";
         spawnConfetti();
         celebrate.classList.add("show");
       }
@@ -2127,14 +2226,16 @@
         chooseLocked = false;
         buildChooseProgressDots(chooseOrder.length);
         updateChooseProgress();
-        chooseHint.textContent = "לחצו על התמונה ששייכת · אין צורך לדבר";
+        chooseHint.textContent = "גררו את התמונה ששייכת · אין צורך לדבר";
         renderChooseRound();
       }
 
       function renderChooseRound() {
         chooseLocked = false;
+        chooseDrag = null;
         const round = currentChoosePack.rounds[chooseOrder[chooseIndex]];
-        choosePrompt.classList.remove("ok");
+        choosePrompt.classList.remove("ok", "over");
+        choosePrompt.querySelectorAll(".choice-card").forEach((c) => c.remove());
         choosePromptImg.src = round.prompt;
         choosePromptImg.alt = "";
 
@@ -2145,51 +2246,219 @@
 
         chooseChoices.innerHTML = "";
         options.forEach((opt) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "choice-card";
-          btn.dataset.id = opt.id;
-          btn.dataset.correct = opt.correct ? "1" : "0";
-          btn.setAttribute("aria-label", opt.id);
+          const slot = document.createElement("div");
+          slot.className = "choice-slot";
+          slot.dataset.slotFor = opt.id;
+
+          const card = document.createElement("div");
+          card.className = "choice-card";
+          card.dataset.id = opt.id;
+          card.dataset.correct = opt.correct ? "1" : "0";
+          card.setAttribute("role", "img");
+          card.setAttribute("aria-label", opt.id);
 
           const img = document.createElement("img");
           img.src = opt.src;
           img.alt = "";
           img.draggable = false;
-          btn.appendChild(img);
+          card.appendChild(img);
 
-          btn.addEventListener("click", () => onChooseTap(btn));
-          chooseChoices.appendChild(btn);
+          slot.appendChild(card);
+          chooseChoices.appendChild(slot);
+          card.addEventListener("pointerdown", onChoosePointerDown);
         });
       }
 
-      function onChooseTap(btn) {
+      function clearChooseDragListeners() {
+        document.removeEventListener("pointermove", onChoosePointerMove);
+        document.removeEventListener("pointerup", onChoosePointerUp);
+        document.removeEventListener("pointercancel", onChoosePointerUp);
+      }
+
+      function onChoosePointerDown(e) {
+        const el = e.currentTarget;
         if (chooseLocked) return;
-        if (btn.dataset.correct === "1") {
-          chooseLocked = true;
-          btn.classList.add("correct");
-          choosePrompt.classList.add("ok");
-          chooseChoices.querySelectorAll(".choice-card").forEach((c) => {
-            c.disabled = true;
-            if (c !== btn) c.classList.add("dim");
-          });
-          chooseCorrectCount += 1;
-          updateChooseProgress();
-          const done = chooseCorrectCount >= chooseOrder.length;
-          setTimeout(() => {
-            if (done) {
-              showCelebrate();
-            } else {
-              chooseIndex += 1;
-              renderChooseRound();
-            }
-          }, 700);
-        } else {
-          btn.classList.remove("wrong");
-          void btn.offsetWidth;
-          btn.classList.add("wrong");
-          btn.addEventListener("animationend", () => btn.classList.remove("wrong"), { once: true });
+        if (chooseDrag) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        e.preventDefault();
+
+        const rect = el.getBoundingClientRect();
+        chooseDrag = {
+          el,
+          pointerId: e.pointerId,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          overPrompt: false,
+          fromSlot: el.parentElement,
+          lifted: false,
+        };
+
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
+        document.addEventListener("pointermove", onChoosePointerMove);
+        document.addEventListener("pointerup", onChoosePointerUp);
+        document.addEventListener("pointercancel", onChoosePointerUp);
+      }
+
+      function liftChooseCard() {
+        if (!chooseDrag || chooseDrag.lifted) return;
+        const el = chooseDrag.el;
+        chooseDrag.lifted = true;
+
+        const ghost = document.createElement("div");
+        ghost.className = "choice-card-ghost";
+        ghost.setAttribute("aria-hidden", "true");
+        const ghostImg = el.querySelector("img");
+        if (ghostImg) {
+          const g = ghostImg.cloneNode(true);
+          g.className = "card-img";
+          ghost.appendChild(g);
         }
+        if (chooseDrag.fromSlot) {
+          chooseDrag.fromSlot.appendChild(ghost);
+          chooseDrag.fromSlot.classList.add("empty");
+          chooseDrag.ghost = ghost;
+        }
+
+        el.classList.add("dragging");
+        el.style.position = "fixed";
+        el.style.left = chooseDrag.startLeft + "px";
+        el.style.top = chooseDrag.startTop + "px";
+        el.style.width = chooseDrag.width + "px";
+        el.style.height = chooseDrag.height + "px";
+        el.style.inset = "auto";
+        el.style.margin = "0";
+        el.style.opacity = "0.98";
+        el.style.zIndex = "50";
+        el.style.pointerEvents = "none";
+        document.body.appendChild(el);
+      }
+
+      function onChoosePointerMove(e) {
+        if (!chooseDrag || e.pointerId !== chooseDrag.pointerId) return;
+        e.preventDefault();
+
+        if (!chooseDrag.lifted) {
+          const dx = e.clientX - chooseDrag.startX;
+          const dy = e.clientY - chooseDrag.startY;
+          if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+          liftChooseCard();
+        }
+
+        const x = e.clientX - chooseDrag.offsetX;
+        const y = e.clientY - chooseDrag.offsetY;
+        chooseDrag.el.style.left = x + "px";
+        chooseDrag.el.style.top = y + "px";
+
+        const r = choosePrompt.getBoundingClientRect();
+        const hit = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        choosePrompt.classList.toggle("over", hit);
+        chooseDrag.overPrompt = hit;
+      }
+
+      function resetChooseCardStyles(el) {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.height = "";
+        el.style.inset = "";
+        el.style.margin = "";
+        el.style.opacity = "";
+        el.style.zIndex = "";
+        el.style.pointerEvents = "";
+        el.classList.remove("dragging");
+      }
+
+      function returnChooseToSlot(el, fromSlot, withShake) {
+        if (chooseDrag && chooseDrag.ghost && chooseDrag.ghost.parentElement) {
+          chooseDrag.ghost.remove();
+          chooseDrag.ghost = null;
+        }
+        if (fromSlot) {
+          fromSlot.classList.remove("empty");
+          fromSlot.appendChild(el);
+        }
+        resetChooseCardStyles(el);
+        if (withShake) {
+          el.classList.remove("wrong");
+          void el.offsetWidth;
+          el.classList.add("wrong");
+          el.addEventListener("animationend", () => el.classList.remove("wrong"), { once: true });
+        }
+      }
+
+      function placeChooseOnPrompt(el) {
+        if (chooseDrag && chooseDrag.ghost && chooseDrag.ghost.parentElement) {
+          chooseDrag.ghost.remove();
+          chooseDrag.ghost = null;
+        }
+        if (chooseDrag && chooseDrag.fromSlot) {
+          chooseDrag.fromSlot.classList.add("empty");
+        }
+        choosePrompt.classList.remove("over");
+        choosePrompt.classList.add("ok");
+        chooseLocked = true;
+        resetChooseCardStyles(el);
+        el.classList.add("correct");
+        el.style.position = "absolute";
+        el.style.inset = "8%";
+        el.style.pointerEvents = "none";
+        el.style.zIndex = "4";
+        choosePrompt.appendChild(el);
+
+        chooseChoices.querySelectorAll(".choice-card").forEach((c) => {
+          c.style.pointerEvents = "none";
+          c.classList.add("dim");
+        });
+
+        chooseCorrectCount += 1;
+        updateChooseProgress();
+        const done = chooseCorrectCount >= chooseOrder.length;
+        setTimeout(() => {
+          if (done) {
+            showCelebrate();
+          } else {
+            chooseIndex += 1;
+            renderChooseRound();
+          }
+        }, 700);
+      }
+
+      function onChoosePointerUp(e) {
+        if (!chooseDrag || e.pointerId !== chooseDrag.pointerId) return;
+        e.preventDefault();
+
+        const el = chooseDrag.el;
+        const over = chooseDrag.overPrompt;
+        const fromSlot = chooseDrag.fromSlot;
+        const wasLifted = chooseDrag.lifted;
+
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+        clearChooseDragListeners();
+        choosePrompt.classList.remove("over");
+
+        if (!wasLifted) {
+          chooseDrag = null;
+          return;
+        }
+
+        if (over && el.dataset.correct === "1") {
+          placeChooseOnPrompt(el);
+        } else if (over) {
+          returnChooseToSlot(el, fromSlot, true);
+        } else {
+          returnChooseToSlot(el, fromSlot, false);
+        }
+
+        chooseDrag = null;
       }
 
 
@@ -2316,7 +2585,6 @@
         celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         seqPlaced = new Set();
         seqDrag = null;
-        seqTapArmed = null;
         const steps = currentSequencePack.steps;
         const n = steps.length;
         const board = document.querySelector(".seq-board");
@@ -2325,7 +2593,7 @@
         seqPool.style.setProperty("--seq-cols", String(n));
         buildSeqProgressDots(n);
         updateSeqProgress();
-        seqHint.textContent = "גררו או לחצו — יש רמז למעלה";
+        seqHint.textContent = "גררו לחריץ — יש רמז למעלה";
         buildSeqHintStrip(steps);
 
         seqSlots.innerHTML = "";
@@ -2560,22 +2828,6 @@
         }
       }
 
-      function tryTapPlace(el) {
-        const next = nextEmptySeqIndex();
-        if (next < 0) return;
-        const wantId = currentSequencePack.steps[next].id;
-        if (el.dataset.id !== wantId) {
-          softWrong(el);
-          return;
-        }
-        const slot = seqSlots.querySelector('.seq-slot[data-index="' + next + '"]');
-        if (!slot || slot.classList.contains("filled")) return;
-        // treat fromSlot as current parent
-        seqDrag = { el, fromSlot: el.parentElement, ghost: null, lifted: false };
-        placeSeqTile(el, slot);
-        seqDrag = null;
-      }
-
       function onSeqPointerUp(e) {
         if (!seqDrag || e.pointerId !== seqDrag.pointerId) return;
         e.preventDefault();
@@ -2591,9 +2843,7 @@
         seqSlots.querySelectorAll(".seq-slot").forEach((s) => s.classList.remove("over"));
 
         if (!wasLifted) {
-          // tap → place into next empty slot left-to-right if correct
           seqDrag = null;
-          tryTapPlace(el);
           return;
         }
 
@@ -2675,27 +2925,16 @@
         dots.forEach((d, i) => d.classList.toggle("on", i < catPlaced.size));
       }
 
-      function clearCatArmed() {
-        catTapArmed = null;
-        if (catPool) {
-          catPool.querySelectorAll(".cat-tile.armed").forEach((t) => t.classList.remove("armed"));
-        }
-        if (catBins) {
-          catBins.querySelectorAll(".cat-bin.armed-target").forEach((b) => b.classList.remove("armed-target"));
-        }
-      }
-
       function buildCategories() {
         celebrate.classList.remove("show");
         celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         catPlaced = new Set();
         catDrag = null;
-        clearCatArmed();
         const pack = currentCategoryPack;
         const n = pack.items.length;
         buildCatProgressDots(n);
         updateCatProgress();
-        catHint.textContent = "גררו או לחצו — שייכו לקבוצה";
+        catHint.textContent = "גררו לקבוצה · אין צורך לדבר";
 
         catBins.innerHTML = "";
         catPool.innerHTML = "";
@@ -2731,7 +2970,6 @@
           el.appendChild(icon);
           el.appendChild(label);
           el.appendChild(drop);
-          el.addEventListener("pointerup", onCatBinTap);
           catBins.appendChild(el);
         });
 
@@ -2773,7 +3011,6 @@
         if (e.pointerType === "mouse" && e.button !== 0) return;
 
         e.preventDefault();
-        clearCatArmed();
 
         const rect = el.getBoundingClientRect();
         catDrag = {
@@ -2920,7 +3157,6 @@
         el.style.position = "absolute";
         el.style.inset = "4%";
         el.style.pointerEvents = "none";
-        el.classList.remove("armed");
 
         const img = el.querySelector("img");
         slot.innerHTML = "";
@@ -2939,32 +3175,11 @@
 
         catPlaced.add(itemId);
         updateCatProgress();
-        clearCatArmed();
 
         if (catPlaced.size === currentCategoryPack.items.length) {
           setTimeout(showCelebrate, 420);
         }
         return true;
-      }
-
-      function armCatTile(el) {
-        clearCatArmed();
-        catTapArmed = el;
-        el.classList.add("armed");
-        catBins.querySelectorAll(".cat-bin").forEach((b) => b.classList.add("armed-target"));
-        catHint.textContent = "לחצו על הקבוצה";
-      }
-
-      function onCatBinTap(e) {
-        if (catDrag && catDrag.lifted) return;
-        const bin = e.currentTarget;
-        if (!catTapArmed) return;
-        e.preventDefault();
-        e.stopPropagation();
-        const el = catTapArmed;
-        catDrag = { el, fromSlot: el.parentElement, ghost: null, lifted: false };
-        placeCatTile(el, bin);
-        catDrag = null;
       }
 
       function onCatPointerUp(e) {
@@ -2981,9 +3196,7 @@
         catBins.querySelectorAll(".cat-bin").forEach((b) => b.classList.remove("over"));
 
         if (!wasLifted) {
-          // tap → arm for bin tap
           catDrag = null;
-          armCatTile(el);
           return;
         }
 
@@ -3074,16 +3287,18 @@
         quizLocked = false;
         buildQuizProgressDots(quizOrder.length);
         updateQuizProgress();
-        quizHint.textContent = "לחצו על החיה שמתאימה · אין צורך לדבר";
+        quizHint.textContent = "גררו את החיה שמתאימה · אין צורך לדבר";
         renderQuizRound();
       }
 
       function renderQuizRound() {
         quizLocked = false;
+        quizDrag = null;
         const round = currentQuizPack.rounds[quizOrder[quizIndex]];
         const animals = currentQuizPack.animals;
 
-        quizClue.classList.remove("ok", "silhouetted");
+        quizClue.classList.remove("ok", "over", "silhouetted");
+        quizClue.querySelectorAll(".quiz-card").forEach((c) => c.remove());
         quizClueImg.src = round.clue;
         quizClueImg.alt = "";
         if (round.mode === "silhouette") {
@@ -3100,56 +3315,224 @@
 
         quizChoices.innerHTML = "";
         options.forEach((opt) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "quiz-card";
-          btn.dataset.id = opt.id;
-          btn.dataset.correct = opt.correct ? "1" : "0";
-          btn.setAttribute("aria-label", opt.id);
+          const slot = document.createElement("div");
+          slot.className = "quiz-slot";
+          slot.dataset.slotFor = opt.id;
+
+          const card = document.createElement("div");
+          card.className = "quiz-card";
+          card.dataset.id = opt.id;
+          card.dataset.correct = opt.correct ? "1" : "0";
+          card.setAttribute("role", "img");
+          card.setAttribute("aria-label", opt.id);
 
           const img = document.createElement("img");
           img.src = opt.src;
           img.alt = "";
           img.draggable = false;
-          btn.appendChild(img);
+          card.appendChild(img);
 
-          btn.addEventListener("click", () => onQuizTap(btn, round));
-          quizChoices.appendChild(btn);
+          slot.appendChild(card);
+          quizChoices.appendChild(slot);
+          card.addEventListener("pointerdown", onQuizPointerDown);
         });
       }
 
-      function onQuizTap(btn, round) {
+      function clearQuizDragListeners() {
+        document.removeEventListener("pointermove", onQuizPointerMove);
+        document.removeEventListener("pointerup", onQuizPointerUp);
+        document.removeEventListener("pointercancel", onQuizPointerUp);
+      }
+
+      function onQuizPointerDown(e) {
+        const el = e.currentTarget;
         if (quizLocked) return;
-        if (btn.dataset.correct === "1") {
-          quizLocked = true;
-          btn.classList.add("correct");
-          quizClue.classList.add("ok");
-          // reveal silhouette on success
-          if (round.mode === "silhouette") {
-            quizClue.classList.remove("silhouetted");
-            quizClueImg.src = currentQuizPack.animals[round.correct];
-          }
-          quizChoices.querySelectorAll(".quiz-card").forEach((c) => {
-            c.disabled = true;
-            if (c !== btn) c.classList.add("dim");
-          });
-          quizCorrectCount += 1;
-          updateQuizProgress();
-          const done = quizCorrectCount >= quizOrder.length;
-          setTimeout(() => {
-            if (done) {
-              showCelebrate();
-            } else {
-              quizIndex += 1;
-              renderQuizRound();
-            }
-          }, 750);
-        } else {
-          btn.classList.remove("wrong");
-          void btn.offsetWidth;
-          btn.classList.add("wrong");
-          btn.addEventListener("animationend", () => btn.classList.remove("wrong"), { once: true });
+        if (quizDrag) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        e.preventDefault();
+
+        const rect = el.getBoundingClientRect();
+        quizDrag = {
+          el,
+          pointerId: e.pointerId,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          overClue: false,
+          fromSlot: el.parentElement,
+          lifted: false,
+        };
+
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
+        document.addEventListener("pointermove", onQuizPointerMove);
+        document.addEventListener("pointerup", onQuizPointerUp);
+        document.addEventListener("pointercancel", onQuizPointerUp);
+      }
+
+      function liftQuizCard() {
+        if (!quizDrag || quizDrag.lifted) return;
+        const el = quizDrag.el;
+        quizDrag.lifted = true;
+
+        const ghost = document.createElement("div");
+        ghost.className = "quiz-card-ghost";
+        ghost.setAttribute("aria-hidden", "true");
+        const ghostImg = el.querySelector("img");
+        if (ghostImg) {
+          const g = ghostImg.cloneNode(true);
+          g.className = "card-img";
+          ghost.appendChild(g);
         }
+        if (quizDrag.fromSlot) {
+          quizDrag.fromSlot.appendChild(ghost);
+          quizDrag.fromSlot.classList.add("empty");
+          quizDrag.ghost = ghost;
+        }
+
+        el.classList.add("dragging");
+        el.style.position = "fixed";
+        el.style.left = quizDrag.startLeft + "px";
+        el.style.top = quizDrag.startTop + "px";
+        el.style.width = quizDrag.width + "px";
+        el.style.height = quizDrag.height + "px";
+        el.style.inset = "auto";
+        el.style.margin = "0";
+        el.style.opacity = "0.98";
+        el.style.zIndex = "50";
+        el.style.pointerEvents = "none";
+        document.body.appendChild(el);
+      }
+
+      function onQuizPointerMove(e) {
+        if (!quizDrag || e.pointerId !== quizDrag.pointerId) return;
+        e.preventDefault();
+
+        if (!quizDrag.lifted) {
+          const dx = e.clientX - quizDrag.startX;
+          const dy = e.clientY - quizDrag.startY;
+          if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+          liftQuizCard();
+        }
+
+        const x = e.clientX - quizDrag.offsetX;
+        const y = e.clientY - quizDrag.offsetY;
+        quizDrag.el.style.left = x + "px";
+        quizDrag.el.style.top = y + "px";
+
+        const r = quizClue.getBoundingClientRect();
+        const hit = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        quizClue.classList.toggle("over", hit);
+        quizDrag.overClue = hit;
+      }
+
+      function resetQuizCardStyles(el) {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.height = "";
+        el.style.inset = "";
+        el.style.margin = "";
+        el.style.opacity = "";
+        el.style.zIndex = "";
+        el.style.pointerEvents = "";
+        el.classList.remove("dragging");
+      }
+
+      function returnQuizToSlot(el, fromSlot, withShake) {
+        if (quizDrag && quizDrag.ghost && quizDrag.ghost.parentElement) {
+          quizDrag.ghost.remove();
+          quizDrag.ghost = null;
+        }
+        if (fromSlot) {
+          fromSlot.classList.remove("empty");
+          fromSlot.appendChild(el);
+        }
+        resetQuizCardStyles(el);
+        if (withShake) {
+          el.classList.remove("wrong");
+          void el.offsetWidth;
+          el.classList.add("wrong");
+          el.addEventListener("animationend", () => el.classList.remove("wrong"), { once: true });
+        }
+      }
+
+      function placeQuizOnClue(el, round) {
+        if (quizDrag && quizDrag.ghost && quizDrag.ghost.parentElement) {
+          quizDrag.ghost.remove();
+          quizDrag.ghost = null;
+        }
+        if (quizDrag && quizDrag.fromSlot) {
+          quizDrag.fromSlot.classList.add("empty");
+        }
+        quizClue.classList.remove("over");
+        quizClue.classList.add("ok");
+        if (round.mode === "silhouette") {
+          quizClue.classList.remove("silhouetted");
+          quizClueImg.src = currentQuizPack.animals[round.correct];
+        }
+        quizLocked = true;
+        resetQuizCardStyles(el);
+        el.classList.add("correct");
+        el.style.position = "absolute";
+        el.style.inset = "8%";
+        el.style.pointerEvents = "none";
+        el.style.zIndex = "4";
+        quizClue.appendChild(el);
+
+        quizChoices.querySelectorAll(".quiz-card").forEach((c) => {
+          c.style.pointerEvents = "none";
+          c.classList.add("dim");
+        });
+
+        quizCorrectCount += 1;
+        updateQuizProgress();
+        const done = quizCorrectCount >= quizOrder.length;
+        setTimeout(() => {
+          if (done) {
+            showCelebrate();
+          } else {
+            quizIndex += 1;
+            renderQuizRound();
+          }
+        }, 750);
+      }
+
+      function onQuizPointerUp(e) {
+        if (!quizDrag || e.pointerId !== quizDrag.pointerId) return;
+        e.preventDefault();
+
+        const el = quizDrag.el;
+        const over = quizDrag.overClue;
+        const fromSlot = quizDrag.fromSlot;
+        const wasLifted = quizDrag.lifted;
+
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+        clearQuizDragListeners();
+        quizClue.classList.remove("over");
+
+        if (!wasLifted) {
+          quizDrag = null;
+          return;
+        }
+
+        const round = currentQuizPack.rounds[quizOrder[quizIndex]];
+        if (over && el.dataset.correct === "1") {
+          placeQuizOnClue(el, round);
+        } else if (over) {
+          returnQuizToSlot(el, fromSlot, true);
+        } else {
+          returnQuizToSlot(el, fromSlot, false);
+        }
+
+        quizDrag = null;
       }
 
 
@@ -3227,7 +3610,7 @@
       });
 
       document.addEventListener("touchmove", (e) => {
-        if (drag || seqDrag || catDrag) e.preventDefault();
+        if (drag || seqDrag || catDrag || chooseDrag || quizDrag) e.preventDefault();
       }, { passive: false });
 
       buildPackGrid();
