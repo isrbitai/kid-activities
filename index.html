@@ -137,40 +137,57 @@
 
     .type-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: clamp(12px, 2.5vw, 20px);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(10px, 1.6vw, 16px);
       width: 100%;
-      max-width: 860px;
+      max-width: 1100px;
     }
 
     .type-btn {
       appearance: none;
       border: none;
       background: var(--card);
-      border-radius: 28px;
+      border-radius: 24px;
       box-shadow: var(--shadow);
-      padding: clamp(16px, 3vw, 28px) 12px;
+      padding: clamp(10px, 1.8vw, 16px) 8px;
       cursor: pointer;
       font-family: inherit;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      min-height: clamp(130px, 28vh, 200px);
+      gap: 8px;
+      min-height: clamp(108px, 18vh, 156px);
       transition: transform .15s, box-shadow .15s;
       border: 3px solid transparent;
     }
     .type-btn:active { transform: scale(0.96); }
-    .type-btn .emoji {
-      font-size: clamp(2.6rem, 8vw, 3.6rem);
-      line-height: 1;
-      filter: drop-shadow(0 4px 8px rgba(61,74,69,.12));
+    .type-btn .type-icon {
+      width: clamp(64px, 8vw, 92px);
+      height: clamp(48px, 6.2vw, 70px);
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 12px;
+      background: #faf7f0;
     }
     .type-btn .label {
-      font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+      font-size: clamp(0.92rem, 1.8vw, 1.16rem);
       font-weight: 800;
       color: var(--ink);
+      text-align: center;
+      line-height: 1.15;
+    }
+    @media (max-width: 980px) {
+      .type-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .type-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .type-btn { min-height: 124px; }
+    }
+    @media (max-height: 740px) and (min-width: 981px) {
+      .type-btn { min-height: 100px; padding: 8px 6px; }
+      .menu-wrap { gap: 8px; }
+      .home-title { font-size: 1.55rem; }
     }
     .type-btn.soon {
       opacity: 0.92;
@@ -1296,6 +1313,377 @@
       .cat-bin-drop { min-height: 48px; }
     }
 
+    /* ---- Phase 1 shared drag tiles ---- */
+    .board-tile {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      will-change: transform;
+    }
+    .board-tile:active { cursor: grabbing; }
+    .board-tile.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      cursor: grabbing;
+    }
+    .board-tile.shake { animation: softShake .5s ease; }
+    .board-tile.placed { pointer-events: none; cursor: default; }
+    .board-ghost {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
+    .board-pool {
+      position: relative;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      min-height: 0;
+      overflow: hidden;
+      border: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .board-pool.empty {
+      background: repeating-linear-gradient(
+        -45deg, #f3efe6, #f3efe6 10px, #efe9de 10px, #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+
+    /* ---- מיון ---- */
+    .sort-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(150px, 1.15fr) minmax(110px, 0.85fr);
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .sort-bins {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 2.5vw, 22px);
+      min-height: 0;
+    }
+    .sort-bin {
+      position: relative;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      border: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 12px 12px;
+      min-height: 0;
+      overflow: hidden;
+      gap: 4px;
+      transition: border-color .2s, box-shadow .2s, transform .2s, background .2s;
+    }
+    .sort-bin[data-bin="food"] {
+      background: linear-gradient(180deg, #fff8ef 0%, #ffe8cc 100%);
+      border-color: rgba(214, 140, 60, 0.4);
+    }
+    .sort-bin[data-bin="animals"] {
+      background: linear-gradient(180deg, #f3fff6 0%, #e3f6ea 100%);
+      border-color: rgba(80, 160, 110, 0.4);
+    }
+    .sort-bin.over {
+      border-color: #9fd4b0;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.2), var(--shadow);
+      transform: scale(1.015);
+    }
+    .sort-bin.flash-ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
+    }
+    .sort-bin-icon {
+      width: min(100%, 240px);
+      max-height: 42%;
+      object-fit: contain;
+      pointer-events: none;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+    .sort-bin-label {
+      margin: 0;
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .sort-bin-drop {
+      flex: 1;
+      width: 100%;
+      min-height: 52px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      align-content: center;
+    }
+    .sort-bin-slot {
+      position: relative;
+      border-radius: 14px;
+      border: 2px dashed rgba(138, 163, 154, 0.5);
+      background: rgba(255,255,255,0.5);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .sort-bin-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+    }
+    .sort-bin-slot.filled::after {
+      content: "✓";
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      animation: pop .35s ease;
+    }
+    .sort-bin-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .sort-pool {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: clamp(8px, 1.5vw, 14px);
+      min-height: 0;
+      align-content: center;
+    }
+    .sort-pool .board-pool { aspect-ratio: 1.25; }
+
+    /* ---- דפוס ---- */
+    .pat-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1.05fr 0.95fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .pat-strip {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 1.5vw, 14px);
+      background: white;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(10px, 2vw, 18px);
+      min-height: 0;
+    }
+    .pat-cell, .pat-slot {
+      flex: 1 1 0;
+      max-width: 180px;
+      aspect-ratio: 1.35;
+      min-width: 0;
+      border-radius: 18px;
+      background: #faf7f0;
+      border: 3px solid #efe9de;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .pat-cell img, .pat-slot img {
+      width: 92%;
+      height: 92%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .pat-slot {
+      border: 4px dashed #8ec9a4;
+      background: #f3fbf6;
+      box-shadow: inset 0 0 0 4px rgba(95,191,122,.12);
+    }
+    .pat-slot.over {
+      border-color: var(--ok);
+      background: #e7f8ec;
+      transform: scale(1.03);
+    }
+    .pat-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 6px var(--ok-glow);
+    }
+    .pat-choices {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 3vw, 28px);
+      min-height: 0;
+    }
+    .pat-choices .board-pool {
+      width: min(34%, 220px);
+      aspect-ratio: 1.35;
+    }
+
+    /* ---- גודל ---- */
+    .size-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1.2fr 0.8fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .size-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(10px, 2vw, 22px);
+      min-height: 0;
+      height: 100%;
+    }
+    .size-slot {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #f4faf7 100%);
+      border-radius: 28px;
+      border: 4px dashed #b7d0c4;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .size-slot[data-rank="0"] { width: 32%; height: 96%; }
+    .size-slot[data-rank="1"] { width: 24%; height: 72%; }
+    .size-slot[data-rank="2"] { width: 17%; height: 50%; }
+    .size-slot.over {
+      border-color: #9fd4b0;
+      border-style: solid;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.18), var(--shadow);
+      transform: scale(1.02);
+    }
+    .size-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+    }
+    .size-slot.filled::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      animation: pop .35s ease;
+    }
+    .size-pool {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(10px, 2vw, 18px);
+      min-height: 0;
+      align-content: center;
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .size-pool .board-pool { aspect-ratio: 1.45; }
+
+    /* ---- פאזל ---- */
+    .puz-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1.15fr 0.85fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .puz-frame {
+      direction: ltr;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      min-height: 0;
+      background: white;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+    .puz-slot {
+      position: relative;
+      border-radius: 18px;
+      background: #f6f1e6;
+      border: 3px dashed #d5cbbd;
+      overflow: hidden;
+      min-height: 0;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .puz-slot .ghost {
+      position: absolute;
+      inset: 6%;
+      width: 88%;
+      height: 88%;
+      object-fit: contain;
+      opacity: 0.32;
+      pointer-events: none;
+    }
+    .puz-slot.over {
+      border-color: #9fd4b0;
+      border-style: solid;
+      box-shadow: 0 0 0 6px rgba(95,191,122,.18);
+      transform: scale(1.02);
+    }
+    .puz-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+    }
+    .puz-slot.filled .ghost { opacity: 0; }
+    .puz-pool {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(10px, 2vw, 16px);
+      min-height: 0;
+      align-content: center;
+    }
+    .puz-pool .board-pool { aspect-ratio: 0.9; background: #fffdf8; }
+
+    @media (orientation: portrait) and (max-width: 700px) {
+      .sort-pool { grid-template-columns: repeat(3, 1fr); }
+      .pat-choices .board-pool { width: min(42%, 180px); }
+      .size-slot[data-rank="0"] { width: 34%; }
+      .size-slot[data-rank="1"] { width: 26%; }
+      .size-slot[data-rank="2"] { width: 18%; }
+    }
+
     .sound-toggle {
       position: fixed;
       z-index: 120;
@@ -1335,24 +1723,44 @@
         <p class="home-sub">בחרו משחק · אין צורך לדבר</p>
         <div class="type-grid" id="type-grid">
           <button class="type-btn" type="button" data-go="match-hub">
-            <span class="emoji" aria-hidden="true">🧩</span>
+            <img class="type-icon" src="assets/cat.png" alt="" draggable="false" />
             <span class="label">התאמה</span>
           </button>
           <button class="type-btn" type="button" data-go="choose-hub">
-            <span class="emoji" aria-hidden="true">👆</span>
+            <img class="type-icon" src="assets/dog.png" alt="" draggable="false" />
             <span class="label">בחירה</span>
           </button>
           <button class="type-btn" type="button" data-go="sequence-hub">
-            <span class="emoji" aria-hidden="true">🔢</span>
+            <img class="type-icon" src="assets/seq_wake.png" alt="" draggable="false" />
             <span class="label">רצף</span>
           </button>
           <button class="type-btn" type="button" data-go="categories-hub">
-            <span class="emoji" aria-hidden="true">📦</span>
+            <img class="type-icon" src="assets/bin_animals.png" alt="" draggable="false" />
             <span class="label">קטגוריות</span>
           </button>
           <button class="type-btn" type="button" data-go="quiz-hub">
-            <span class="emoji" aria-hidden="true">👀</span>
+            <img class="type-icon" src="assets/quiz_cat_ear.png" alt="" draggable="false" />
             <span class="label">חידון ויזואלי</span>
+          </button>
+          <button class="type-btn" type="button" data-go="sort-hub">
+            <img class="type-icon" src="assets/food_basket.png" alt="" draggable="false" />
+            <span class="label">מיון</span>
+          </button>
+          <button class="type-btn" type="button" data-go="assoc-hub">
+            <img class="type-icon" src="assets/bone.png" alt="" draggable="false" />
+            <span class="label">מה הולך עם מה</span>
+          </button>
+          <button class="type-btn" type="button" data-go="pattern-hub">
+            <img class="type-icon" src="assets/shape_circle.png" alt="" draggable="false" />
+            <span class="label">המשך את הדפוס</span>
+          </button>
+          <button class="type-btn" type="button" data-go="size-hub">
+            <img class="type-icon" src="assets/size_ball_big.png" alt="" draggable="false" />
+            <span class="label">מגדול לקטן</span>
+          </button>
+          <button class="type-btn" type="button" data-go="puzzle-hub">
+            <img class="type-icon" src="assets/puzzle_dog_head.png" alt="" draggable="false" />
+            <span class="label">פאזל</span>
           </button>
         </div>
       </div>
@@ -1510,6 +1918,136 @@
       </div>
 
       <p class="hint" id="quiz-hint">גררו את החיה שמתאימה · אין צורך לדבר</p>
+    </section>
+
+    <!-- SORT HUB -->
+    <section class="screen" id="screen-sort-hub" aria-label="מיון">
+      <header>
+        <button class="nav-btn" type="button" id="sort-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">מיון — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="sort-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- SORT PLAY -->
+    <section class="screen" id="screen-sort-play" aria-label="מיון משחק">
+      <header>
+        <button class="nav-btn" type="button" id="sort-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="sort-play-title">גררו לסל</h1>
+        <div class="progress" id="sort-progress" aria-hidden="true"></div>
+      </header>
+      <div class="sort-board">
+        <div class="sort-bins" id="sort-bins" aria-label="סלים"></div>
+        <div class="sort-pool" id="sort-pool" aria-label="פריטים"></div>
+      </div>
+      <p class="hint" id="sort-hint">גררו לסל · אין צורך לדבר</p>
+    </section>
+
+    <!-- ASSOCIATION HUB -->
+    <section class="screen" id="screen-assoc-hub" aria-label="מה הולך עם מה">
+      <header>
+        <button class="nav-btn" type="button" id="assoc-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">מה הולך עם מה — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="assoc-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- ASSOCIATION PLAY -->
+    <section class="screen" id="screen-assoc-play" aria-label="מה הולך עם מה משחק">
+      <header>
+        <button class="nav-btn" type="button" id="assoc-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="assoc-play-title">מה הולך עם מה</h1>
+        <div class="progress" id="assoc-progress" aria-hidden="true"></div>
+      </header>
+      <div class="board">
+        <div class="row" id="assoc-items" aria-label="פריטים"></div>
+        <div class="row" id="assoc-homes" aria-label="מה ששייך"></div>
+      </div>
+      <p class="hint" id="assoc-hint">גררו למה ששייך · אין צורך לדבר</p>
+    </section>
+
+    <!-- PATTERN HUB -->
+    <section class="screen" id="screen-pattern-hub" aria-label="המשך את הדפוס">
+      <header>
+        <button class="nav-btn" type="button" id="pattern-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">דפוס — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="pattern-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- PATTERN PLAY -->
+    <section class="screen" id="screen-pattern-play" aria-label="דפוס משחק">
+      <header>
+        <button class="nav-btn" type="button" id="pattern-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="pattern-play-title">המשך את הדפוס</h1>
+        <div class="progress" id="pattern-progress" aria-hidden="true"></div>
+      </header>
+      <div class="pat-board">
+        <div class="pat-strip" id="pat-strip" aria-label="דפוס"></div>
+        <div class="pat-choices" id="pat-choices" aria-label="אפשרויות"></div>
+      </div>
+      <p class="hint" id="pattern-hint">גררו את הבא בתור · אין צורך לדבר</p>
+    </section>
+
+    <!-- SIZE HUB -->
+    <section class="screen" id="screen-size-hub" aria-label="מגדול לקטן">
+      <header>
+        <button class="nav-btn" type="button" id="size-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">גודל — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="size-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- SIZE PLAY -->
+    <section class="screen" id="screen-size-play" aria-label="גודל משחק">
+      <header>
+        <button class="nav-btn" type="button" id="size-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="size-play-title">מגדול לקטן</h1>
+        <div class="progress" id="size-progress" aria-hidden="true"></div>
+      </header>
+      <div class="size-board">
+        <div class="size-row" id="size-slots" aria-label="מהגדול לקטן"></div>
+        <div class="size-pool" id="size-pool" aria-label="כדורים"></div>
+      </div>
+      <p class="hint" id="size-hint">גררו מהגדול לקטן · אין צורך לדבר</p>
+    </section>
+
+    <!-- PUZZLE HUB -->
+    <section class="screen" id="screen-puzzle-hub" aria-label="פאזל">
+      <header>
+        <button class="nav-btn" type="button" id="puzzle-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">פאזל — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="puzzle-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- PUZZLE PLAY -->
+    <section class="screen" id="screen-puzzle-play" aria-label="פאזל משחק">
+      <header>
+        <button class="nav-btn" type="button" id="puzzle-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="puzzle-play-title">השלימו את הפאזל</h1>
+        <div class="progress" id="puzzle-progress" aria-hidden="true"></div>
+      </header>
+      <div class="puz-board">
+        <div class="puz-frame" id="puz-frame" aria-label="מסגרת"></div>
+        <div class="puz-pool" id="puz-pool" aria-label="חלקים"></div>
+      </div>
+      <p class="hint" id="puzzle-hint">גררו כל חלק למקום · אין צורך לדבר</p>
     </section>
 
     <!-- STUB / בקרוב -->
@@ -2242,7 +2780,8 @@
           }
           quizDrag = null;
         }
-        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play") {
+        cancelPhaseDrags();
+        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play" && id !== "sort-play" && id !== "assoc-play" && id !== "pattern-play" && id !== "size-play" && id !== "puzzle-play") {
           celebrate.classList.remove("show");
           celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         }
@@ -2554,15 +3093,7 @@
       }
 
       function showCelebrate() {
-        hint.textContent = "";
-        const ch = document.getElementById("choose-hint");
-        const sh = document.getElementById("sequence-hint");
-        const cath = document.getElementById("categories-hint");
-        const qh = document.getElementById("quiz-hint");
-        if (ch) ch.textContent = "";
-        if (sh) sh.textContent = "";
-        if (cath) cath.textContent = "";
-        if (qh) qh.textContent = "";
+        document.querySelectorAll(".hint").forEach((h) => { h.textContent = ""; });
         spawnConfetti();
         celebrate.classList.add("show");
         sfx.celebrate();
@@ -3982,6 +4513,856 @@
       }
 
 
+      // ---- Phase 1: מיון · אסוציאציה · דפוס · גודל · פאזל ----
+      const SORT_PACKS = {
+        foodAnimals: {
+          id: "foodAnimals",
+          label: "אוכל וחיות",
+          subtitle: "2 סלים · קל",
+          playTitle: "גררו לסל",
+          celebrate: "הכל בסל הנכון!",
+          preview: [
+            "assets/food_apple.png",
+            "assets/food_banana.png",
+            "assets/cat.png",
+            "assets/dog.png",
+          ],
+          bins: [
+            { id: "food", label: "אוכל", icon: "assets/food_basket.png" },
+            { id: "animals", label: "חיות", icon: "assets/sort_home.png" },
+          ],
+          items: [
+            { id: "apple", src: "assets/food_apple.png", bin: "food" },
+            { id: "banana", src: "assets/food_banana.png", bin: "food" },
+            { id: "orange", src: "assets/food_orange.png", bin: "food" },
+            { id: "cat", src: "assets/cat.png", bin: "animals" },
+            { id: "dog", src: "assets/dog.png", bin: "animals" },
+            { id: "bird", src: "assets/bird.png", bin: "animals" },
+          ],
+        },
+      };
+
+      const ASSOC_PACKS = {
+        home: {
+          id: "home",
+          label: "בית",
+          subtitle: "4 זוגות · קל",
+          playTitle: "מה הולך עם מה",
+          celebrate: "הכל מתאים!",
+          preview: [
+            "assets/dog.png",
+            "assets/bone.png",
+            "assets/car.png",
+            "assets/garage.png",
+          ],
+          pairs: [
+            { id: "dog", item: "assets/dog.png", partner: "assets/bone.png" },
+            { id: "fish", item: "assets/fish.png", partner: "assets/fishbowl.png" },
+            { id: "car", item: "assets/car.png", partner: "assets/garage.png" },
+            { id: "bird", item: "assets/bird.png", partner: "assets/nest.png" },
+          ],
+        },
+      };
+
+      const PATTERN_PACKS = {
+        colorsShapes: {
+          id: "colorsShapes",
+          label: "צבעים וצורות",
+          subtitle: "AB · קל",
+          playTitle: "המשך את הדפוס",
+          celebrate: "הדפוס מושלם!",
+          preview: [
+            "assets/color_red_ball.png",
+            "assets/color_blue_fish.png",
+            "assets/shape_circle.png",
+            "assets/shape_square.png",
+          ],
+          rounds: [
+            {
+              shown: ["assets/color_red_ball.png", "assets/color_blue_fish.png", "assets/color_red_ball.png"],
+              answer: "blue",
+              choices: [
+                { id: "blue", src: "assets/color_blue_fish.png" },
+                { id: "sun", src: "assets/color_yellow_sun.png" },
+              ],
+            },
+            {
+              shown: ["assets/shape_circle.png", "assets/shape_square.png", "assets/shape_circle.png"],
+              answer: "square",
+              choices: [
+                { id: "square", src: "assets/shape_square.png" },
+                { id: "star", src: "assets/shape_star.png" },
+              ],
+            },
+            {
+              shown: ["assets/color_yellow_sun.png", "assets/color_green_leaf.png", "assets/color_yellow_sun.png"],
+              answer: "leaf",
+              choices: [
+                { id: "leaf", src: "assets/color_green_leaf.png" },
+                { id: "ball", src: "assets/color_red_ball.png" },
+              ],
+            },
+            {
+              shown: ["assets/color_red_ball.png", "assets/color_blue_fish.png", "assets/color_blue_fish.png"],
+              answer: "ball",
+              choices: [
+                { id: "ball", src: "assets/color_red_ball.png" },
+                { id: "sun", src: "assets/color_yellow_sun.png" },
+              ],
+            },
+          ],
+        },
+      };
+
+      const SIZE_PACKS = {
+        balls: {
+          id: "balls",
+          label: "כדורים",
+          subtitle: "3 גדלים · קל",
+          playTitle: "מגדול לקטן",
+          celebrate: "הסדר מושלם!",
+          preview: [
+            "assets/size_ball_big.png",
+            "assets/size_ball_mid.png",
+            "assets/size_ball_small.png",
+          ],
+          items: [
+            { id: "big", src: "assets/size_ball_big.png", rank: "0" },
+            { id: "mid", src: "assets/size_ball_mid.png", rank: "1" },
+            { id: "small", src: "assets/size_ball_small.png", rank: "2" },
+          ],
+        },
+      };
+
+      const PUZZLE_PACKS = {
+        dog: {
+          id: "dog",
+          label: "כלב",
+          subtitle: "3 חלקים · קל",
+          playTitle: "השלימו את הפאזל",
+          celebrate: "הפאזל מוכן!",
+          preview: [
+            "assets/puzzle_dog_head.png",
+            "assets/puzzle_dog_body.png",
+            "assets/puzzle_dog_tail.png",
+          ],
+          pieces: [
+            { id: "head", src: "assets/puzzle_dog_head.png" },
+            { id: "body", src: "assets/puzzle_dog_body.png" },
+            { id: "tail", src: "assets/puzzle_dog_tail.png" },
+          ],
+        },
+      };
+
+      const phaseCtrls = [];
+      function cancelPhaseDrags() {
+        phaseCtrls.forEach((c) => c.cancel());
+      }
+      function phaseDragActive() {
+        return phaseCtrls.some((c) => c.isActive());
+      }
+
+      function cardImg(src) {
+        const img = document.createElement("img");
+        img.className = "card-img";
+        img.src = src;
+        img.alt = "";
+        img.draggable = false;
+        return img;
+      }
+
+      function fillPackGrid(grid, packs, onPick) {
+        grid.innerHTML = "";
+        Object.values(packs).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label + (pack.subtitle ? " " + pack.subtitle : ""));
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          pack.preview.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
+          btn.addEventListener("click", () => onPick(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function paintDots(container, n, filled) {
+        container.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot" + (i < filled ? " on" : "");
+          container.appendChild(d);
+        }
+      }
+
+      function createBoardDrag(cfg) {
+        let drag = null;
+
+        function clearListeners() {
+          document.removeEventListener("pointermove", onMove);
+          document.removeEventListener("pointerup", onUp);
+          document.removeEventListener("pointercancel", onUp);
+        }
+
+        function resetStyles(el) {
+          el.style.position = "";
+          el.style.left = "";
+          el.style.top = "";
+          el.style.width = "";
+          el.style.height = "";
+          el.style.inset = "";
+          el.style.margin = "";
+          el.style.opacity = "";
+          el.style.zIndex = "";
+          el.style.pointerEvents = "";
+          el.classList.remove("dragging");
+        }
+
+        function clearGhost() {
+          if (drag && drag.ghost && drag.ghost.parentElement) {
+            drag.ghost.remove();
+            drag.ghost = null;
+          }
+        }
+
+        function lift() {
+          if (!drag || drag.lifted) return;
+          const el = drag.el;
+          drag.lifted = true;
+          const ghost = document.createElement("div");
+          ghost.className = cfg.ghostClass || "board-ghost";
+          ghost.setAttribute("aria-hidden", "true");
+          const ghostImg = el.querySelector("img");
+          if (ghostImg) {
+            const g = ghostImg.cloneNode(true);
+            g.className = "card-img";
+            ghost.appendChild(g);
+          }
+          if (drag.fromSlot) {
+            drag.fromSlot.appendChild(ghost);
+            drag.fromSlot.classList.add("empty");
+            drag.ghost = ghost;
+          }
+          el.classList.add("dragging");
+          el.style.position = "fixed";
+          el.style.left = drag.startLeft + "px";
+          el.style.top = drag.startTop + "px";
+          el.style.width = drag.width + "px";
+          el.style.height = drag.height + "px";
+          el.style.inset = "auto";
+          el.style.margin = "0";
+          el.style.opacity = "0.98";
+          el.style.zIndex = "50";
+          el.style.pointerEvents = "none";
+          document.body.appendChild(el);
+        }
+
+        function returnHome(withShake) {
+          const el = drag.el;
+          const fromSlot = drag.fromSlot;
+          clearGhost();
+          if (fromSlot) {
+            fromSlot.classList.remove("empty");
+            fromSlot.appendChild(el);
+          }
+          resetStyles(el);
+          if (withShake) softWrong(el);
+        }
+
+        function onDown(e) {
+          const el = e.currentTarget;
+          if (celebrate.classList.contains("show")) return;
+          if (cfg.canStart && cfg.canStart(el) === false) return;
+          if (drag) return;
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          e.preventDefault();
+          const rect = el.getBoundingClientRect();
+          drag = {
+            el,
+            pointerId: e.pointerId,
+            offsetX: e.clientX - rect.left,
+            offsetY: e.clientY - rect.top,
+            startX: e.clientX,
+            startY: e.clientY,
+            startLeft: rect.left,
+            startTop: rect.top,
+            width: rect.width,
+            height: rect.height,
+            target: null,
+            fromSlot: el.parentElement,
+            lifted: false,
+            clearGhost,
+            resetStyles,
+          };
+          try { el.setPointerCapture(e.pointerId); } catch (_) {}
+          document.addEventListener("pointermove", onMove);
+          document.addEventListener("pointerup", onUp);
+          document.addEventListener("pointercancel", onUp);
+        }
+
+        function onMove(e) {
+          if (!drag || e.pointerId !== drag.pointerId) return;
+          e.preventDefault();
+          if (!drag.lifted) {
+            const dx = e.clientX - drag.startX;
+            const dy = e.clientY - drag.startY;
+            if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+            lift();
+          }
+          drag.el.style.left = (e.clientX - drag.offsetX) + "px";
+          drag.el.style.top = (e.clientY - drag.offsetY) + "px";
+          drag.target = cfg.hitTest ? cfg.hitTest(e.clientX, e.clientY) : null;
+        }
+
+        function onUp(e) {
+          if (!drag || e.pointerId !== drag.pointerId) return;
+          e.preventDefault();
+          const el = drag.el;
+          const target = drag.target;
+          const wasLifted = drag.lifted;
+          try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+          clearListeners();
+          if (cfg.clearOver) cfg.clearOver();
+          if (!wasLifted) {
+            drag = null;
+            return;
+          }
+          let accepted = false;
+          try {
+            accepted = cfg.onDrop(el, target, drag) === true;
+          } catch (err) {
+            accepted = false;
+          }
+          if (!accepted) returnHome(!!target);
+          drag = null;
+        }
+
+        function cancel() {
+          if (!drag) return;
+          clearListeners();
+          if (cfg.clearOver) cfg.clearOver();
+          if (drag.lifted && drag.el) returnHome(false);
+          try { drag.el.releasePointerCapture(drag.pointerId); } catch (_) {}
+          drag = null;
+        }
+
+        const api = {
+          onDown,
+          cancel,
+          isActive() { return !!drag; },
+        };
+        phaseCtrls.push(api);
+        return api;
+      }
+
+      function finishBoard(placed, total) {
+        if (placed < total) return;
+        sfx.celebrateIn(420);
+        setTimeout(showCelebrate, 420);
+      }
+
+      // מיון
+      const sortBinsEl = document.getElementById("sort-bins");
+      const sortPoolEl = document.getElementById("sort-pool");
+      const sortProgressEl = document.getElementById("sort-progress");
+      const sortHintEl = document.getElementById("sort-hint");
+      const sortPlayTitleEl = document.getElementById("sort-play-title");
+      let currentSortPack = SORT_PACKS.foodAnimals;
+      let sortPlaced = new Set();
+
+      function startSortPack(packId) {
+        activity = "sort";
+        currentSortPack = SORT_PACKS[packId] || SORT_PACKS.foodAnimals;
+        sortPlayTitleEl.textContent = currentSortPack.playTitle;
+        celebrateMsg.textContent = currentSortPack.celebrate;
+        showScreen("sort-play");
+        buildSort();
+      }
+
+      function buildSort() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        sortPlaced = new Set();
+        const pack = currentSortPack;
+        paintDots(sortProgressEl, pack.items.length, 0);
+        sortHintEl.textContent = "גררו לסל · אין צורך לדבר";
+        sortBinsEl.innerHTML = "";
+        sortPoolEl.innerHTML = "";
+
+        pack.bins.forEach((bin) => {
+          const el = document.createElement("div");
+          el.className = "sort-bin";
+          el.dataset.bin = bin.id;
+          el.setAttribute("aria-label", bin.label);
+          const icon = document.createElement("img");
+          icon.className = "sort-bin-icon";
+          icon.src = bin.icon;
+          icon.alt = "";
+          icon.draggable = false;
+          const label = document.createElement("p");
+          label.className = "sort-bin-label";
+          label.textContent = bin.label;
+          const drop = document.createElement("div");
+          drop.className = "sort-bin-drop";
+          const n = pack.items.filter((it) => it.bin === bin.id).length;
+          for (let i = 0; i < n; i++) {
+            const slot = document.createElement("div");
+            slot.className = "sort-bin-slot";
+            drop.appendChild(slot);
+          }
+          el.appendChild(icon);
+          el.appendChild(label);
+          el.appendChild(drop);
+          sortBinsEl.appendChild(el);
+        });
+
+        shuffle(pack.items).forEach((item) => {
+          const poolSlot = document.createElement("div");
+          poolSlot.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = item.id;
+          tile.dataset.bin = item.bin;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", item.id);
+          tile.appendChild(cardImg(item.src));
+          poolSlot.appendChild(tile);
+          sortPoolEl.appendChild(poolSlot);
+          tile.addEventListener("pointerdown", sortDrag.onDown);
+        });
+      }
+
+      const sortDrag = createBoardDrag({
+        canStart(el) { return !el.classList.contains("placed"); },
+        hitTest(x, y) {
+          let over = null;
+          sortBinsEl.querySelectorAll(".sort-bin").forEach((b) => {
+            const r = b.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            b.classList.toggle("over", hit);
+            if (hit) over = b;
+          });
+          return over;
+        },
+        clearOver() {
+          sortBinsEl.querySelectorAll(".sort-bin").forEach((b) => b.classList.remove("over"));
+        },
+        onDrop(el, bin, drag) {
+          if (!bin || bin.dataset.bin !== el.dataset.bin) return false;
+          const slot = bin.querySelector(".sort-bin-slot:not(.filled)");
+          if (!slot) return false;
+          const itemId = el.dataset.id;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          const img = el.querySelector("img");
+          drag.resetStyles(el);
+          el.remove();
+          if (img) {
+            img.className = "";
+            slot.appendChild(img);
+          }
+          slot.classList.add("filled");
+          bin.classList.remove("over");
+          bin.classList.add("flash-ok");
+          setTimeout(() => bin.classList.remove("flash-ok"), 500);
+          sortPlaced.add(itemId);
+          paintDots(sortProgressEl, currentSortPack.items.length, sortPlaced.size);
+          sfx.success();
+          finishBoard(sortPlaced.size, currentSortPack.items.length);
+          return true;
+        },
+      });
+
+      // מה הולך עם מה
+      const assocItemsEl = document.getElementById("assoc-items");
+      const assocHomesEl = document.getElementById("assoc-homes");
+      const assocProgressEl = document.getElementById("assoc-progress");
+      const assocHintEl = document.getElementById("assoc-hint");
+      const assocPlayTitleEl = document.getElementById("assoc-play-title");
+      let currentAssocPack = ASSOC_PACKS.home;
+      let assocPlaced = new Set();
+
+      function startAssocPack(packId) {
+        activity = "assoc";
+        currentAssocPack = ASSOC_PACKS[packId] || ASSOC_PACKS.home;
+        assocPlayTitleEl.textContent = currentAssocPack.playTitle;
+        celebrateMsg.textContent = currentAssocPack.celebrate;
+        showScreen("assoc-play");
+        buildAssoc();
+      }
+
+      function buildAssoc() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        assocPlaced = new Set();
+        const pack = currentAssocPack;
+        paintDots(assocProgressEl, pack.pairs.length, 0);
+        assocHintEl.textContent = "גררו למה ששייך · אין צורך לדבר";
+        assocItemsEl.innerHTML = "";
+        assocHomesEl.innerHTML = "";
+
+        shuffle(pack.pairs).forEach((pair) => {
+          const slot = document.createElement("div");
+          slot.className = "slot";
+          const tile = document.createElement("div");
+          tile.className = "animal";
+          tile.dataset.id = pair.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", pair.id);
+          tile.appendChild(cardImg(pair.item));
+          slot.appendChild(tile);
+          assocItemsEl.appendChild(slot);
+          tile.addEventListener("pointerdown", assocDrag.onDown);
+        });
+
+        shuffle(pack.pairs).forEach((pair) => {
+          const home = document.createElement("div");
+          home.className = "home";
+          home.dataset.accepts = pair.id;
+          home.appendChild(cardImg(pair.partner));
+          assocHomesEl.appendChild(home);
+        });
+      }
+
+      const assocDrag = createBoardDrag({
+        ghostClass: "animal-ghost",
+        canStart(el) { return !el.classList.contains("matched"); },
+        hitTest(x, y) {
+          let over = null;
+          assocHomesEl.querySelectorAll(".home:not(.matched)").forEach((h) => {
+            const r = h.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            h.classList.toggle("over", hit);
+            if (hit) over = h;
+          });
+          return over;
+        },
+        clearOver() {
+          assocHomesEl.querySelectorAll(".home").forEach((h) => h.classList.remove("over"));
+        },
+        onDrop(el, home, drag) {
+          if (!home || home.dataset.accepts !== el.dataset.id) return false;
+          drag.clearGhost();
+          home.classList.remove("over");
+          home.classList.add("matched");
+          el.classList.add("matched");
+          drag.resetStyles(el);
+          el.style.position = "absolute";
+          el.style.inset = "6%";
+          const homeImg = home.querySelector(":scope > .card-img");
+          if (homeImg) homeImg.style.opacity = "0.22";
+          home.appendChild(el);
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          assocPlaced.add(el.dataset.id);
+          paintDots(assocProgressEl, currentAssocPack.pairs.length, assocPlaced.size);
+          sfx.success();
+          finishBoard(assocPlaced.size, currentAssocPack.pairs.length);
+          return true;
+        },
+      });
+
+      // המשך את הדפוס
+      const patStripEl = document.getElementById("pat-strip");
+      const patChoicesEl = document.getElementById("pat-choices");
+      const patProgressEl = document.getElementById("pattern-progress");
+      const patHintEl = document.getElementById("pattern-hint");
+      const patPlayTitleEl = document.getElementById("pattern-play-title");
+      let currentPatternPack = PATTERN_PACKS.colorsShapes;
+      let patOrder = [];
+      let patIndex = 0;
+      let patCorrect = 0;
+      let patLocked = false;
+
+      function startPatternPack(packId) {
+        activity = "pattern";
+        currentPatternPack = PATTERN_PACKS[packId] || PATTERN_PACKS.colorsShapes;
+        patPlayTitleEl.textContent = currentPatternPack.playTitle;
+        celebrateMsg.textContent = currentPatternPack.celebrate;
+        showScreen("pattern-play");
+        buildPattern();
+      }
+
+      function buildPattern() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        patOrder = shuffle(currentPatternPack.rounds.map((_, i) => i));
+        patIndex = 0;
+        patCorrect = 0;
+        patLocked = false;
+        paintDots(patProgressEl, patOrder.length, 0);
+        patHintEl.textContent = "גררו את הבא בתור · אין צורך לדבר";
+        renderPatternRound();
+      }
+
+      function renderPatternRound() {
+        patLocked = false;
+        const round = currentPatternPack.rounds[patOrder[patIndex]];
+        patStripEl.innerHTML = "";
+        patChoicesEl.innerHTML = "";
+        round.shown.forEach((src) => {
+          const cell = document.createElement("div");
+          cell.className = "pat-cell";
+          const img = document.createElement("img");
+          img.src = src;
+          img.alt = "";
+          img.draggable = false;
+          cell.appendChild(img);
+          patStripEl.appendChild(cell);
+        });
+        const slot = document.createElement("div");
+        slot.className = "pat-slot";
+        slot.dataset.accepts = round.answer;
+        slot.setAttribute("aria-label", "המקום הבא");
+        patStripEl.appendChild(slot);
+
+        shuffle(round.choices).forEach((choice) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = choice.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", choice.id);
+          tile.appendChild(cardImg(choice.src));
+          pool.appendChild(tile);
+          patChoicesEl.appendChild(pool);
+          tile.addEventListener("pointerdown", patDrag.onDown);
+        });
+      }
+
+      const patDrag = createBoardDrag({
+        canStart() { return !patLocked; },
+        hitTest(x, y) {
+          const slot = patStripEl.querySelector(".pat-slot:not(.filled)");
+          if (!slot) return null;
+          const r = slot.getBoundingClientRect();
+          const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+          slot.classList.toggle("over", hit);
+          return hit ? slot : null;
+        },
+        clearOver() {
+          patStripEl.querySelectorAll(".pat-slot").forEach((s) => s.classList.remove("over"));
+        },
+        onDrop(el, slot, drag) {
+          if (!slot || slot.dataset.accepts !== el.dataset.id) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.classList.add("placed");
+          el.style.position = "absolute";
+          el.style.inset = "4%";
+          el.style.pointerEvents = "none";
+          slot.classList.remove("over");
+          slot.classList.add("filled");
+          slot.appendChild(el);
+          patLocked = true;
+          patCorrect += 1;
+          paintDots(patProgressEl, currentPatternPack.rounds.length, patCorrect);
+          sfx.success();
+          const done = patCorrect >= patOrder.length;
+          if (done) sfx.celebrateIn(700);
+          setTimeout(() => {
+            if (done) showCelebrate();
+            else {
+              patIndex += 1;
+              renderPatternRound();
+            }
+          }, 700);
+          return true;
+        },
+      });
+
+      // מגדול לקטן — big slot is first in the DOM so it sits on the right in RTL
+      const sizeSlotsEl = document.getElementById("size-slots");
+      const sizePoolEl = document.getElementById("size-pool");
+      const sizeProgressEl = document.getElementById("size-progress");
+      const sizeHintEl = document.getElementById("size-hint");
+      const sizePlayTitleEl = document.getElementById("size-play-title");
+      let currentSizePack = SIZE_PACKS.balls;
+      let sizePlaced = new Set();
+
+      function startSizePack(packId) {
+        activity = "size";
+        currentSizePack = SIZE_PACKS[packId] || SIZE_PACKS.balls;
+        sizePlayTitleEl.textContent = currentSizePack.playTitle;
+        celebrateMsg.textContent = currentSizePack.celebrate;
+        showScreen("size-play");
+        buildSize();
+      }
+
+      function buildSize() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        sizePlaced = new Set();
+        const pack = currentSizePack;
+        paintDots(sizeProgressEl, pack.items.length, 0);
+        sizeHintEl.textContent = "גררו מהגדול לקטן · אין צורך לדבר";
+        sizeSlotsEl.innerHTML = "";
+        sizePoolEl.innerHTML = "";
+        pack.items.forEach((item) => {
+          const slot = document.createElement("div");
+          slot.className = "size-slot";
+          slot.dataset.rank = item.rank;
+          slot.setAttribute("aria-label", item.id);
+          sizeSlotsEl.appendChild(slot);
+        });
+        shuffle(pack.items).forEach((item) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = item.id;
+          tile.dataset.rank = item.rank;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", item.id);
+          tile.appendChild(cardImg(item.src));
+          pool.appendChild(tile);
+          sizePoolEl.appendChild(pool);
+          tile.addEventListener("pointerdown", sizeDrag.onDown);
+        });
+      }
+
+      const sizeDrag = createBoardDrag({
+        canStart(el) { return !el.classList.contains("placed"); },
+        hitTest(x, y) {
+          let over = null;
+          sizeSlotsEl.querySelectorAll(".size-slot:not(.filled)").forEach((s) => {
+            const r = s.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            s.classList.toggle("over", hit);
+            if (hit) over = s;
+          });
+          return over;
+        },
+        clearOver() {
+          sizeSlotsEl.querySelectorAll(".size-slot").forEach((s) => s.classList.remove("over"));
+        },
+        onDrop(el, slot, drag) {
+          if (!slot || slot.dataset.rank !== el.dataset.rank) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.classList.add("placed");
+          el.style.position = "absolute";
+          el.style.inset = "5%";
+          el.style.pointerEvents = "none";
+          slot.classList.remove("over");
+          slot.classList.add("filled");
+          slot.appendChild(el);
+          sizePlaced.add(el.dataset.id);
+          paintDots(sizeProgressEl, currentSizePack.items.length, sizePlaced.size);
+          sfx.success();
+          finishBoard(sizePlaced.size, currentSizePack.items.length);
+          return true;
+        },
+      });
+
+      // פאזל — frame is LTR so head, body, tail stay left to right
+      const puzFrameEl = document.getElementById("puz-frame");
+      const puzPoolEl = document.getElementById("puz-pool");
+      const puzProgressEl = document.getElementById("puzzle-progress");
+      const puzHintEl = document.getElementById("puzzle-hint");
+      const puzPlayTitleEl = document.getElementById("puzzle-play-title");
+      let currentPuzzlePack = PUZZLE_PACKS.dog;
+      let puzPlaced = new Set();
+
+      function startPuzzlePack(packId) {
+        activity = "puzzle";
+        currentPuzzlePack = PUZZLE_PACKS[packId] || PUZZLE_PACKS.dog;
+        puzPlayTitleEl.textContent = currentPuzzlePack.playTitle;
+        celebrateMsg.textContent = currentPuzzlePack.celebrate;
+        showScreen("puzzle-play");
+        buildPuzzle();
+      }
+
+      function buildPuzzle() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        puzPlaced = new Set();
+        const pack = currentPuzzlePack;
+        paintDots(puzProgressEl, pack.pieces.length, 0);
+        puzHintEl.textContent = "גררו כל חלק למקום · אין צורך לדבר";
+        puzFrameEl.innerHTML = "";
+        puzPoolEl.innerHTML = "";
+        pack.pieces.forEach((piece) => {
+          const slot = document.createElement("div");
+          slot.className = "puz-slot";
+          slot.dataset.id = piece.id;
+          const ghost = document.createElement("img");
+          ghost.className = "ghost";
+          ghost.src = piece.src;
+          ghost.alt = "";
+          ghost.draggable = false;
+          slot.appendChild(ghost);
+          puzFrameEl.appendChild(slot);
+        });
+        shuffle(pack.pieces).forEach((piece) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = piece.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", piece.id);
+          tile.appendChild(cardImg(piece.src));
+          pool.appendChild(tile);
+          puzPoolEl.appendChild(pool);
+          tile.addEventListener("pointerdown", puzDrag.onDown);
+        });
+      }
+
+      const puzDrag = createBoardDrag({
+        canStart(el) { return !el.classList.contains("placed"); },
+        hitTest(x, y) {
+          let over = null;
+          puzFrameEl.querySelectorAll(".puz-slot:not(.filled)").forEach((s) => {
+            const r = s.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            s.classList.toggle("over", hit);
+            if (hit) over = s;
+          });
+          return over;
+        },
+        clearOver() {
+          puzFrameEl.querySelectorAll(".puz-slot").forEach((s) => s.classList.remove("over"));
+        },
+        onDrop(el, slot, drag) {
+          if (!slot || slot.dataset.id !== el.dataset.id) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.classList.add("placed");
+          el.style.position = "absolute";
+          el.style.inset = "4%";
+          el.style.pointerEvents = "none";
+          slot.classList.remove("over");
+          slot.classList.add("filled");
+          slot.appendChild(el);
+          puzPlaced.add(el.dataset.id);
+          paintDots(puzProgressEl, currentPuzzlePack.pieces.length, puzPlaced.size);
+          sfx.success();
+          finishBoard(puzPlaced.size, currentPuzzlePack.pieces.length);
+          return true;
+        },
+      });
+
       // ---- Navigation wiring ----
       document.addEventListener("click", (e) => {
         const btn = e.target.closest("button.type-btn, button.pack-btn, button.nav-btn, button.btn");
@@ -4036,6 +5417,31 @@
           showScreen("quiz-hub");
           return;
         }
+        if (btn.dataset.go === "sort-hub") {
+          activity = "sort";
+          showScreen("sort-hub");
+          return;
+        }
+        if (btn.dataset.go === "assoc-hub") {
+          activity = "assoc";
+          showScreen("assoc-hub");
+          return;
+        }
+        if (btn.dataset.go === "pattern-hub") {
+          activity = "pattern";
+          showScreen("pattern-hub");
+          return;
+        }
+        if (btn.dataset.go === "size-hub") {
+          activity = "size";
+          showScreen("size-hub");
+          return;
+        }
+        if (btn.dataset.go === "puzzle-hub") {
+          activity = "puzzle";
+          showScreen("puzzle-hub");
+          return;
+        }
         if (btn.dataset.stub) {
           document.getElementById("soon-title").textContent = btn.dataset.stub;
           document.getElementById("soon-heading").textContent = btn.dataset.stub;
@@ -4054,6 +5460,16 @@
       document.getElementById("categories-play-back").addEventListener("click", () => showScreen("categories-hub"));
       document.getElementById("quiz-hub-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("quiz-play-back").addEventListener("click", () => showScreen("quiz-hub"));
+      document.getElementById("sort-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("sort-play-back").addEventListener("click", () => showScreen("sort-hub"));
+      document.getElementById("assoc-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("assoc-play-back").addEventListener("click", () => showScreen("assoc-hub"));
+      document.getElementById("pattern-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("pattern-play-back").addEventListener("click", () => showScreen("pattern-hub"));
+      document.getElementById("size-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("size-play-back").addEventListener("click", () => showScreen("size-hub"));
+      document.getElementById("puzzle-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("puzzle-play-back").addEventListener("click", () => showScreen("puzzle-hub"));
       document.getElementById("soon-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("soon-home").addEventListener("click", () => showScreen("home"));
 
@@ -4062,17 +5478,28 @@
         else if (activity === "sequence") buildSequence();
         else if (activity === "categories") buildCategories();
         else if (activity === "quiz") buildQuiz();
+        else if (activity === "sort") buildSort();
+        else if (activity === "assoc") buildAssoc();
+        else if (activity === "pattern") buildPattern();
+        else if (activity === "size") buildSize();
+        else if (activity === "puzzle") buildPuzzle();
         else build();
       });
       againBtn.addEventListener("pointerup", (e) => e.stopPropagation());
 
       document.getElementById("celebrate-hub").addEventListener("click", () => {
         celebrate.classList.remove("show");
-        const hub = activity === "choose" ? "choose-hub"
-                  : activity === "sequence" ? "sequence-hub"
-                  : activity === "categories" ? "categories-hub"
-                  : activity === "quiz" ? "quiz-hub"
-                  : "match-hub";
+        const hub = {
+          choose: "choose-hub",
+          sequence: "sequence-hub",
+          categories: "categories-hub",
+          quiz: "quiz-hub",
+          sort: "sort-hub",
+          assoc: "assoc-hub",
+          pattern: "pattern-hub",
+          size: "size-hub",
+          puzzle: "puzzle-hub",
+        }[activity] || "match-hub";
         showScreen(hub);
       });
       document.getElementById("celebrate-home").addEventListener("click", () => {
@@ -4081,7 +5508,7 @@
       });
 
       document.addEventListener("touchmove", (e) => {
-        if (drag || seqDrag || catDrag || chooseDrag || quizDrag) e.preventDefault();
+        if (drag || seqDrag || catDrag || chooseDrag || quizDrag || phaseDragActive()) e.preventDefault();
       }, { passive: false });
 
       buildPackGrid();
@@ -4089,6 +5516,11 @@
       buildSequencePackGrid();
       buildCategoriesPackGrid();
       buildQuizPackGrid();
+      fillPackGrid(document.getElementById("sort-pack-grid"), SORT_PACKS, startSortPack);
+      fillPackGrid(document.getElementById("assoc-pack-grid"), ASSOC_PACKS, startAssocPack);
+      fillPackGrid(document.getElementById("pattern-pack-grid"), PATTERN_PACKS, startPatternPack);
+      fillPackGrid(document.getElementById("size-pack-grid"), SIZE_PACKS, startSizePack);
+      fillPackGrid(document.getElementById("puzzle-pack-grid"), PUZZLE_PACKS, startPuzzlePack);
       showScreen("home");
     })();
   </script>

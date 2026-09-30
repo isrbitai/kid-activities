@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="560" viewBox="0 0 480 560">
+  <defs>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F6C48A"/>
+      <stop offset="55%" stop-color="#E0944E"/>
+      <stop offset="100%" stop-color="#D07A3C"/>
+    </linearGradient>
+    <linearGradient id="earIn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F7C7B4"/>
+      <stop offset="100%" stop-color="#E59A8C"/>
+    </linearGradient>
+    <linearGradient id="snout" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF4E4"/>
+      <stop offset="100%" stop-color="#F0D2B0"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.2"/>
+      <feOffset dx="0" dy="5"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#soft)">
+    <ellipse cx="210" cy="168" rx="58" ry="86" transform="rotate(-24 210 168)" fill="url(#fur)" stroke="#6E3B22" stroke-width="8" stroke-linejoin="round"/>
+    <ellipse cx="198" cy="176" rx="30" ry="52" transform="rotate(-24 198 176)" fill="url(#earIn)"/>
+    <circle cx="268" cy="292" r="148" fill="url(#fur)" stroke="#6E3B22" stroke-width="8"/>
+    <ellipse cx="188" cy="248" rx="36" ry="22" fill="#F4B89A" opacity="0.55"/>
+    <ellipse cx="128" cy="318" rx="78" ry="56" fill="url(#snout)" stroke="#6E3B22" stroke-width="8"/>
+    <ellipse cx="86" cy="304" rx="28" ry="22" fill="#3A2A28"/>
+    <ellipse cx="78" cy="296" rx="8" ry="6" fill="#FFFFFF" opacity="0.55"/>
+    <path d="M108 346 Q128 372 156 348" fill="none" stroke="#6E3B22" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="132" cy="368" rx="18" ry="22" fill="#E86B7A"/>
+    <ellipse cx="126" cy="360" rx="6" ry="8" fill="#F7A0AA" opacity="0.8"/>
+    <ellipse cx="300" cy="268" rx="32" ry="34" fill="#FFFFFF" stroke="#6E3B22" stroke-width="6"/>
+    <circle cx="304" cy="272" r="16" fill="#2A241F"/>
+    <circle cx="310" cy="264" r="6" fill="#FFFFFF"/>
+    <path d="M250 214 Q292 198 332 220" fill="none" stroke="#6E3B22" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="392" cy="250" rx="28" ry="16" fill="#FFFFFF" opacity="0.38"/>
+    <ellipse cx="360" cy="360" rx="22" ry="14" fill="#E9897A" opacity="0.45"/>
+  </g>
+</svg>
