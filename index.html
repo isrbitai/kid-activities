@@ -120,6 +120,7 @@
       gap: 18px;
       padding: 8px;
       overflow-y: auto;
+      touch-action: pan-y;
     }
 
     .home-title {
@@ -1927,6 +1928,149 @@
     }
     .emo-pool .board-pool { aspect-ratio: 1.25; }
 
+    /* ---- קודם… אחר כך… ---- */
+    .ft-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1.25fr 0.75fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .ft-slots {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: center;
+      gap: clamp(6px, 1.4vw, 14px);
+      min-height: 0;
+    }
+    .ft-slot {
+      flex: 1 1 0;
+      max-width: 480px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: white;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 10px 12px 12px;
+    }
+    .ft-label {
+      font-size: clamp(1.35rem, 3.4vw, 2rem);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .ft-drop {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      border-radius: 20px;
+      border: 4px dashed #b7d0c4;
+      background: #f7fbf8;
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .ft-drop .ghost {
+      position: absolute;
+      inset: 3%;
+      width: 94%;
+      height: 94%;
+      object-fit: contain;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .ft-slot.over .ft-drop {
+      border-color: #9fd4b0;
+      border-style: solid;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.18);
+      transform: scale(1.02);
+    }
+    .ft-slot.filled .ft-drop {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 8px var(--ok-glow);
+    }
+    .ft-arrow {
+      align-self: center;
+      flex: 0 0 auto;
+      font-size: clamp(2rem, 5vw, 3.1rem);
+      font-weight: 800;
+      color: #7eaa98;
+      line-height: 1;
+    }
+    .ft-pool {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(12px, 2.4vw, 22px);
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      min-height: 0;
+      align-content: center;
+    }
+    .ft-pool .board-pool { aspect-ratio: 1.55; }
+
+    /* ---- כמה? ---- */
+    .qty-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1.15fr 0.85fr;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .qty-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+    .qty-target {
+      position: relative;
+      width: min(100%, 68vh, 680px);
+      max-height: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border-radius: 28px;
+      border: 4px dashed #8ec9a4;
+      background: #f3fbf6;
+      box-shadow: inset 0 0 0 4px rgba(95,191,122,.12), var(--shadow);
+      overflow: hidden;
+      transition: border-color .2s, transform .2s, box-shadow .2s, background .2s;
+    }
+    .qty-target .qty-prompt {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .qty-target.over {
+      border-style: solid;
+      border-color: var(--ok);
+      transform: scale(1.02);
+      background: #e7f8ec;
+    }
+    .qty-target.ok {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+    }
+    .qty-choices {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.4vw, 26px);
+      min-height: 0;
+    }
+    .qty-choices .board-pool {
+      width: min(30%, 250px);
+      aspect-ratio: 1.45;
+    }
+
     @media (orientation: portrait) and (max-width: 700px) {
       .sort-pool { grid-template-columns: repeat(3, 1fr); }
       .pat-choices .board-pool { width: min(42%, 180px); }
@@ -1936,6 +2080,9 @@
       .sd-choices .board-pool, .close-choices .board-pool { width: min(42%, 180px); flex-basis: 42%; }
       .emo-pool { grid-template-columns: repeat(2, 1fr); }
       .sd-sample, .sd-slot { max-width: 48%; }
+      .ft-label { font-size: 1.25rem; }
+      .ft-arrow { font-size: 1.8rem; }
+      .qty-choices .board-pool { width: min(31%, 150px); }
     }
 
     .sound-toggle {
@@ -2027,6 +2174,14 @@
           <button class="type-btn" type="button" data-go="emo-hub">
             <img class="type-icon" src="assets/emo_happy.png" alt="" draggable="false" />
             <span class="label">רגשות</span>
+          </button>
+          <button class="type-btn" type="button" data-go="ft-hub">
+            <img class="type-icon" src="assets/ft_wake.png" alt="" draggable="false" />
+            <span class="label">קודם… אחר כך…</span>
+          </button>
+          <button class="type-btn" type="button" data-go="qty-hub">
+            <img class="type-icon" src="assets/qty_apple_2.png" alt="" draggable="false" />
+            <span class="label">כמה?</span>
           </button>
         </div>
       </div>
@@ -2394,6 +2549,62 @@
         <div class="emo-pool" id="emo-pool" aria-label="כרטיסים"></div>
       </div>
       <p class="hint" id="emo-hint">גררו לפנים שמתאימות</p>
+    </section>
+
+    <!-- FIRST / THEN HUB -->
+    <section class="screen" id="screen-ft-hub" aria-label="קודם אחר כך">
+      <header>
+        <button class="nav-btn" type="button" id="ft-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">קודם… אחר כך… — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="ft-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- FIRST / THEN PLAY -->
+    <section class="screen" id="screen-ft-play" aria-label="קודם אחר כך משחק">
+      <header>
+        <button class="nav-btn" type="button" id="ft-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="ft-play-title">קודם… אחר כך…</h1>
+        <div class="progress" id="ft-progress" aria-hidden="true"></div>
+      </header>
+      <div class="ft-board">
+        <div class="ft-slots" id="ft-slots" aria-label="קודם ואחר כך"></div>
+        <div class="ft-pool" id="ft-pool" aria-label="תמונות"></div>
+      </div>
+      <p class="hint" id="ft-hint">גררו קודם ואחר כך</p>
+    </section>
+
+    <!-- QUANTITY HUB -->
+    <section class="screen" id="screen-qty-hub" aria-label="כמה">
+      <header>
+        <button class="nav-btn" type="button" id="qty-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">כמה? — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="qty-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- QUANTITY PLAY -->
+    <section class="screen" id="screen-qty-play" aria-label="כמה משחק">
+      <header>
+        <button class="nav-btn" type="button" id="qty-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="qty-play-title">כמה?</h1>
+        <div class="progress" id="qty-progress" aria-hidden="true"></div>
+      </header>
+      <div class="qty-board">
+        <div class="qty-stage">
+          <div class="qty-target" id="qty-target" aria-label="כמה">
+            <img class="qty-prompt" id="qty-prompt" alt="" draggable="false" />
+          </div>
+        </div>
+        <div class="qty-choices" id="qty-choices" aria-label="קבוצות"></div>
+      </div>
+      <p class="hint" id="qty-hint">גררו את אותה כמות</p>
     </section>
 
     <!-- STUB / בקרוב -->
@@ -3127,7 +3338,7 @@
           quizDrag = null;
         }
         cancelPhaseDrags();
-        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play" && id !== "sort-play" && id !== "assoc-play" && id !== "pattern-play" && id !== "size-play" && id !== "puzzle-play" && id !== "sd-play" && id !== "close-play" && id !== "emo-play") {
+        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play" && id !== "sort-play" && id !== "assoc-play" && id !== "pattern-play" && id !== "size-play" && id !== "puzzle-play" && id !== "sd-play" && id !== "close-play" && id !== "emo-play" && id !== "ft-play" && id !== "qty-play") {
           celebrate.classList.remove("show");
           celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         }
@@ -6230,6 +6441,241 @@
         },
       });
 
+      // ---- Phase 3: קודם… אחר כך… · כמה? ----
+      const FT_PACKS = {
+        morning: {
+          id: "morning",
+          label: "בוקר",
+          subtitle: "שני צעדים · קל",
+          playTitle: "קודם… אחר כך…",
+          celebrate: "הסדר מוכן!",
+          preview: ["assets/ft_wake.png", "assets/ft_eat.png"],
+          steps: [
+            { id: "wake", src: "assets/ft_wake.png", label: "קודם" },
+            { id: "eat", src: "assets/ft_eat.png", label: "אחר כך" },
+          ],
+        },
+      };
+
+      const QTY_PACKS = {
+        apples: {
+          id: "apples",
+          label: "תפוחים",
+          subtitle: "1–3 · קל",
+          playTitle: "כמה?",
+          celebrate: "הכמות נכונה!",
+          preview: [
+            "assets/qty_apple_1.png",
+            "assets/qty_apple_2.png",
+            "assets/qty_apple_3.png",
+          ],
+          rounds: [
+            { n: "1", src: "assets/qty_apple_1.png" },
+            { n: "2", src: "assets/qty_apple_2.png" },
+            { n: "3", src: "assets/qty_apple_3.png" },
+          ],
+        },
+      };
+
+      const ftSlotsEl = document.getElementById("ft-slots");
+      const ftPoolEl = document.getElementById("ft-pool");
+      const ftProgressEl = document.getElementById("ft-progress");
+      const ftHintEl = document.getElementById("ft-hint");
+      const ftPlayTitleEl = document.getElementById("ft-play-title");
+      let currentFtPack = FT_PACKS.morning;
+      let ftPlaced = new Set();
+
+      function startFtPack(packId) {
+        activity = "ft";
+        currentFtPack = FT_PACKS[packId] || FT_PACKS.morning;
+        ftPlayTitleEl.textContent = currentFtPack.playTitle;
+        celebrateMsg.textContent = currentFtPack.celebrate;
+        showScreen("ft-play");
+        buildFt();
+      }
+
+      function buildFt() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        ftPlaced = new Set();
+        const pack = currentFtPack;
+        paintDots(ftProgressEl, pack.steps.length, 0);
+        ftHintEl.textContent = "גררו קודם ואחר כך";
+        ftSlotsEl.innerHTML = "";
+        ftPoolEl.innerHTML = "";
+        pack.steps.forEach((step, i) => {
+          if (i > 0) {
+            const arrow = document.createElement("div");
+            arrow.className = "ft-arrow";
+            arrow.setAttribute("aria-hidden", "true");
+            arrow.textContent = "←";
+            ftSlotsEl.appendChild(arrow);
+          }
+          const slot = document.createElement("div");
+          slot.className = "ft-slot";
+          slot.dataset.id = step.id;
+          slot.setAttribute("aria-label", step.label);
+          const label = document.createElement("span");
+          label.className = "ft-label";
+          label.textContent = step.label;
+          const drop = document.createElement("div");
+          drop.className = "ft-drop";
+          const ghost = document.createElement("img");
+          ghost.className = "ghost";
+          ghost.src = step.src;
+          ghost.alt = "";
+          ghost.draggable = false;
+          drop.appendChild(ghost);
+          slot.appendChild(label);
+          slot.appendChild(drop);
+          ftSlotsEl.appendChild(slot);
+        });
+        shuffle(pack.steps).forEach((step) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = step.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", step.label);
+          tile.appendChild(cardImg(step.src));
+          pool.appendChild(tile);
+          ftPoolEl.appendChild(pool);
+          tile.addEventListener("pointerdown", ftDrag.onDown);
+        });
+      }
+
+      const ftDrag = createBoardDrag({
+        canStart(el) { return !el.classList.contains("placed"); },
+        hitTest(x, y) {
+          let over = null;
+          ftSlotsEl.querySelectorAll(".ft-slot:not(.filled)").forEach((s) => {
+            const r = s.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            s.classList.toggle("over", hit);
+            if (hit) over = s;
+          });
+          return over;
+        },
+        clearOver() {
+          ftSlotsEl.querySelectorAll(".ft-slot").forEach((s) => s.classList.remove("over"));
+        },
+        onDrop(el, slot, drag) {
+          if (!slot || slot.dataset.id !== el.dataset.id) return false;
+          const drop = slot.querySelector(".ft-drop");
+          if (!drop) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.classList.add("placed");
+          el.style.position = "absolute";
+          el.style.inset = "2%";
+          el.style.pointerEvents = "none";
+          slot.classList.remove("over");
+          slot.classList.add("filled");
+          drop.appendChild(el);
+          ftPlaced.add(el.dataset.id);
+          paintDots(ftProgressEl, currentFtPack.steps.length, ftPlaced.size);
+          sfx.success();
+          finishBoard(ftPlaced.size, currentFtPack.steps.length);
+          return true;
+        },
+      });
+
+      const qtyTargetEl = document.getElementById("qty-target");
+      const qtyPromptEl = document.getElementById("qty-prompt");
+      const qtyChoicesEl = document.getElementById("qty-choices");
+      const qtyProgressEl = document.getElementById("qty-progress");
+      const qtyHintEl = document.getElementById("qty-hint");
+      const qtyPlayTitleEl = document.getElementById("qty-play-title");
+      let currentQtyPack = QTY_PACKS.apples;
+      let qtyIndex = 0;
+      let qtyCorrect = 0;
+      let qtyLocked = false;
+
+      function startQtyPack(packId) {
+        activity = "qty";
+        currentQtyPack = QTY_PACKS[packId] || QTY_PACKS.apples;
+        qtyPlayTitleEl.textContent = currentQtyPack.playTitle;
+        celebrateMsg.textContent = currentQtyPack.celebrate;
+        showScreen("qty-play");
+        buildQty();
+      }
+
+      function buildQty() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        qtyIndex = 0;
+        qtyCorrect = 0;
+        qtyLocked = false;
+        paintDots(qtyProgressEl, currentQtyPack.rounds.length, 0);
+        qtyHintEl.textContent = "גררו את אותה כמות";
+        renderQtyRound();
+      }
+
+      function renderQtyRound() {
+        qtyLocked = false;
+        const round = currentQtyPack.rounds[qtyIndex];
+        qtyTargetEl.classList.remove("over", "ok");
+        qtyTargetEl.querySelectorAll(".board-tile").forEach((t) => t.remove());
+        qtyTargetEl.dataset.n = round.n;
+        qtyPromptEl.src = round.src;
+        qtyChoicesEl.innerHTML = "";
+        shuffle(currentQtyPack.rounds).forEach((choice) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.n = choice.n;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", choice.n);
+          tile.appendChild(cardImg(choice.src));
+          pool.appendChild(tile);
+          qtyChoicesEl.appendChild(pool);
+          tile.addEventListener("pointerdown", qtyDrag.onDown);
+        });
+      }
+
+      const qtyDrag = createBoardDrag({
+        canStart() { return !qtyLocked; },
+        hitTest(x, y) {
+          const r = qtyTargetEl.getBoundingClientRect();
+          const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+          qtyTargetEl.classList.toggle("over", hit);
+          return hit ? qtyTargetEl : null;
+        },
+        clearOver() {
+          qtyTargetEl.classList.remove("over");
+        },
+        onDrop(el, target, drag) {
+          if (!target || target.dataset.n !== el.dataset.n) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.classList.add("placed");
+          el.style.position = "absolute";
+          el.style.inset = "3%";
+          el.style.pointerEvents = "none";
+          target.classList.remove("over");
+          target.classList.add("ok");
+          target.appendChild(el);
+          qtyLocked = true;
+          qtyCorrect += 1;
+          paintDots(qtyProgressEl, currentQtyPack.rounds.length, qtyCorrect);
+          sfx.success();
+          const done = qtyCorrect >= currentQtyPack.rounds.length;
+          if (done) sfx.celebrateIn(700);
+          setTimeout(() => {
+            if (done) showCelebrate();
+            else {
+              qtyIndex += 1;
+              renderQtyRound();
+            }
+          }, 700);
+          return true;
+        },
+      });
+
       // ---- Navigation wiring ----
       document.addEventListener("click", (e) => {
         const btn = e.target.closest("button.type-btn, button.pack-btn, button.nav-btn, button.btn");
@@ -6324,6 +6770,16 @@
           showScreen("emo-hub");
           return;
         }
+        if (btn.dataset.go === "ft-hub") {
+          activity = "ft";
+          showScreen("ft-hub");
+          return;
+        }
+        if (btn.dataset.go === "qty-hub") {
+          activity = "qty";
+          showScreen("qty-hub");
+          return;
+        }
         if (btn.dataset.stub) {
           document.getElementById("soon-title").textContent = btn.dataset.stub;
           document.getElementById("soon-heading").textContent = btn.dataset.stub;
@@ -6358,6 +6814,10 @@
       document.getElementById("close-play-back").addEventListener("click", () => showScreen("close-hub"));
       document.getElementById("emo-hub-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("emo-play-back").addEventListener("click", () => showScreen("emo-hub"));
+      document.getElementById("ft-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("ft-play-back").addEventListener("click", () => showScreen("ft-hub"));
+      document.getElementById("qty-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("qty-play-back").addEventListener("click", () => showScreen("qty-hub"));
       document.getElementById("soon-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("soon-home").addEventListener("click", () => showScreen("home"));
 
@@ -6374,6 +6834,8 @@
         else if (activity === "sd") buildSd();
         else if (activity === "close") buildClose();
         else if (activity === "emo") buildEmo();
+        else if (activity === "ft") buildFt();
+        else if (activity === "qty") buildQty();
         else build();
       });
       againBtn.addEventListener("pointerup", (e) => e.stopPropagation());
@@ -6393,6 +6855,8 @@
           sd: "sd-hub",
           close: "close-hub",
           emo: "emo-hub",
+          ft: "ft-hub",
+          qty: "qty-hub",
         }[activity] || "match-hub";
         showScreen(hub);
       });
@@ -6418,6 +6882,8 @@
       fillPackGrid(document.getElementById("sd-pack-grid"), SD_PACKS, startSdPack);
       fillPackGrid(document.getElementById("close-pack-grid"), CLOSE_PACKS, startClosePack);
       fillPackGrid(document.getElementById("emo-pack-grid"), EMO_PACKS, startEmoPack);
+      fillPackGrid(document.getElementById("ft-pack-grid"), FT_PACKS, startFtPack);
+      fillPackGrid(document.getElementById("qty-pack-grid"), QTY_PACKS, startQtyPack);
       showScreen("home");
     })();
   </script>
