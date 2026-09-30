@@ -185,9 +185,13 @@
       .type-btn { min-height: 124px; }
     }
     @media (max-height: 740px) and (min-width: 981px) {
-      .type-btn { min-height: 100px; padding: 8px 6px; }
+      .type-btn { min-height: 92px; padding: 8px 6px; }
       .menu-wrap { gap: 8px; }
       .home-title { font-size: 1.55rem; }
+    }
+    #screen-home .menu-wrap {
+      justify-content: flex-start;
+      overflow-y: auto;
     }
     .type-btn.soon {
       opacity: 0.92;
@@ -1676,12 +1680,262 @@
     }
     .puz-pool .board-pool { aspect-ratio: 0.9; background: #fffdf8; }
 
+    /* ---- אותו / שונה ---- */
+    .sd-board, .close-board, .emo-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .sd-board { grid-template-rows: 1.15fr 0.85fr; }
+    .sd-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.4vw, 28px);
+      min-height: 0;
+    }
+    .sd-sample, .sd-slot {
+      position: relative;
+      height: 94%;
+      aspect-ratio: 16 / 9;
+      max-width: 46%;
+      border-radius: 24px;
+      overflow: hidden;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .sd-sample img, .sd-ghost {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .sd-ghost {
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+    }
+    .sd-slot {
+      border: 4px dashed #8ec9a4;
+      background: #f3fbf6;
+      box-shadow: inset 0 0 0 4px rgba(95,191,122,.12), var(--shadow);
+      transition: border-color .2s, transform .2s, background .2s;
+    }
+    .sd-slot.over, .sd-odd-slot.over {
+      border-color: var(--ok);
+      border-style: solid;
+      transform: scale(1.02);
+    }
+    .sd-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+    }
+    .sd-odd-slot {
+      height: 96%;
+      width: min(560px, 78%);
+      border-radius: 28px;
+      border: 4px dashed #e0a060;
+      background: linear-gradient(180deg, #fff8ef 0%, #ffe8cc 100%);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 14px 12px;
+      transition: border-color .2s, transform .2s;
+    }
+    .sd-odd-pair { display: flex; gap: 10px; align-items: center; }
+    .sd-odd-pair img {
+      width: clamp(78px, 12vw, 120px);
+      height: clamp(54px, 8vw, 84px);
+      object-fit: contain;
+      background: white;
+      border-radius: 14px;
+      pointer-events: none;
+    }
+    .sd-odd-label {
+      margin: 0;
+      font-weight: 800;
+      font-size: clamp(1.6rem, 4vw, 2.3rem);
+      color: var(--ink);
+    }
+    .sd-odd-well {
+      position: relative;
+      width: min(280px, 80%);
+      flex: 1;
+      min-height: 72px;
+      border-radius: 18px;
+      border: 3px dashed rgba(180, 120, 60, 0.5);
+      background: rgba(255,255,255,0.62);
+    }
+    .sd-odd-well.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+    }
+    .sd-choices, .close-choices {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 2.5vw, 24px);
+      min-height: 0;
+    }
+    .sd-choices .board-pool, .close-choices .board-pool {
+      width: min(30%, 230px);
+      aspect-ratio: 1.45;
+      flex: 0 1 230px;
+    }
+
+    /* ---- השלם את התמונה ---- */
+    .close-board { grid-template-rows: 1.3fr 0.7fr; }
+    .close-stage-wrap {
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-stage {
+      position: relative;
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 24px;
+      overflow: hidden;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .close-scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+    }
+    .close-gap {
+      position: absolute;
+      border: 4px dashed #2f8a55;
+      border-radius: 16px;
+      background: transparent;
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.65);
+      transition: background .2s, transform .2s;
+    }
+    .close-gap.over {
+      background: rgba(95,191,122,.22);
+      transform: scale(1.03);
+    }
+    .close-gap.filled {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ---- רגשות ---- */
+    .emo-board { grid-template-rows: minmax(150px, 1.2fr) minmax(110px, 0.8fr); }
+    .emo-bins {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 2.5vw, 22px);
+      min-height: 0;
+    }
+    .emo-bin {
+      position: relative;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      border: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 12px 12px;
+      min-height: 0;
+      overflow: hidden;
+      gap: 4px;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .emo-bin[data-bin="happy"] {
+      background: linear-gradient(180deg, #fff8df 0%, #ffe7a8 100%);
+      border-color: rgba(214, 170, 50, 0.45);
+    }
+    .emo-bin[data-bin="sad"] {
+      background: linear-gradient(180deg, #f3f8ff 0%, #d9e8fb 100%);
+      border-color: rgba(90, 140, 200, 0.4);
+    }
+    .emo-bin.over {
+      border-color: #9fd4b0;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.2), var(--shadow);
+      transform: scale(1.015);
+    }
+    .emo-bin.flash-ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
+    }
+    .emo-bin-icon {
+      width: min(100%, 220px);
+      max-height: 52%;
+      object-fit: contain;
+      pointer-events: none;
+      flex-shrink: 1;
+      min-height: 0;
+      border-radius: 16px;
+    }
+    .emo-bin-label {
+      margin: 0;
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .emo-bin-drop {
+      flex: 1;
+      width: 100%;
+      min-height: 52px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .emo-bin-slot {
+      position: relative;
+      border-radius: 14px;
+      border: 2px dashed rgba(138, 163, 154, 0.55);
+      background: rgba(255,255,255,0.55);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .emo-bin-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+    }
+    .emo-bin-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .emo-pool {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(8px, 1.6vw, 16px);
+      min-height: 0;
+      align-content: center;
+      max-width: 880px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .emo-pool .board-pool { aspect-ratio: 1.25; }
+
     @media (orientation: portrait) and (max-width: 700px) {
       .sort-pool { grid-template-columns: repeat(3, 1fr); }
       .pat-choices .board-pool { width: min(42%, 180px); }
       .size-slot[data-rank="0"] { width: 34%; }
       .size-slot[data-rank="1"] { width: 26%; }
       .size-slot[data-rank="2"] { width: 18%; }
+      .sd-choices .board-pool, .close-choices .board-pool { width: min(42%, 180px); flex-basis: 42%; }
+      .emo-pool { grid-template-columns: repeat(2, 1fr); }
+      .sd-sample, .sd-slot { max-width: 48%; }
     }
 
     .sound-toggle {
@@ -1761,6 +2015,18 @@
           <button class="type-btn" type="button" data-go="puzzle-hub">
             <img class="type-icon" src="assets/puzzle_dog_head.png" alt="" draggable="false" />
             <span class="label">פאזל</span>
+          </button>
+          <button class="type-btn" type="button" data-go="sd-hub">
+            <img class="type-icon" src="assets/sd_duck_bow.png" alt="" draggable="false" />
+            <span class="label">אותו / שונה</span>
+          </button>
+          <button class="type-btn" type="button" data-go="close-hub">
+            <img class="type-icon" src="assets/close_house_gap.png" alt="" draggable="false" />
+            <span class="label">השלם את התמונה</span>
+          </button>
+          <button class="type-btn" type="button" data-go="emo-hub">
+            <img class="type-icon" src="assets/emo_happy.png" alt="" draggable="false" />
+            <span class="label">רגשות</span>
           </button>
         </div>
       </div>
@@ -2048,6 +2314,86 @@
         <div class="puz-pool" id="puz-pool" aria-label="חלקים"></div>
       </div>
       <p class="hint" id="puzzle-hint">גררו כל חלק למקום · אין צורך לדבר</p>
+    </section>
+
+    <!-- SAME / DIFFERENT HUB -->
+    <section class="screen" id="screen-sd-hub" aria-label="אותו או שונה">
+      <header>
+        <button class="nav-btn" type="button" id="sd-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">אותו / שונה — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="sd-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- SAME / DIFFERENT PLAY -->
+    <section class="screen" id="screen-sd-play" aria-label="אותו או שונה משחק">
+      <header>
+        <button class="nav-btn" type="button" id="sd-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="sd-play-title">אותו / שונה</h1>
+        <div class="progress" id="sd-progress" aria-hidden="true"></div>
+      </header>
+      <div class="sd-board">
+        <div class="sd-stage" id="sd-stage" aria-label="דוגמה"></div>
+        <div class="sd-choices" id="sd-choices" aria-label="אפשרויות"></div>
+      </div>
+      <p class="hint" id="sd-hint">גררו את אותו</p>
+    </section>
+
+    <!-- VISUAL CLOSURE HUB -->
+    <section class="screen" id="screen-close-hub" aria-label="השלם את התמונה">
+      <header>
+        <button class="nav-btn" type="button" id="close-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">השלם את התמונה — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="close-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- VISUAL CLOSURE PLAY -->
+    <section class="screen" id="screen-close-play" aria-label="השלם את התמונה משחק">
+      <header>
+        <button class="nav-btn" type="button" id="close-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="close-play-title">השלימו את התמונה</h1>
+        <div class="progress" id="close-progress" aria-hidden="true"></div>
+      </header>
+      <div class="close-board">
+        <div class="close-stage-wrap">
+          <div class="close-stage" id="close-stage" aria-label="תמונה"></div>
+        </div>
+        <div class="close-choices" id="close-choices" aria-label="חלקים"></div>
+      </div>
+      <p class="hint" id="close-hint">גררו את החלק החסר</p>
+    </section>
+
+    <!-- EMOTIONS HUB -->
+    <section class="screen" id="screen-emo-hub" aria-label="רגשות">
+      <header>
+        <button class="nav-btn" type="button" id="emo-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">רגשות — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="emo-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- EMOTIONS PLAY -->
+    <section class="screen" id="screen-emo-play" aria-label="רגשות משחק">
+      <header>
+        <button class="nav-btn" type="button" id="emo-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="emo-play-title">שמח או עצוב</h1>
+        <div class="progress" id="emo-progress" aria-hidden="true"></div>
+      </header>
+      <div class="emo-board">
+        <div class="emo-bins" id="emo-bins" aria-label="פנים"></div>
+        <div class="emo-pool" id="emo-pool" aria-label="כרטיסים"></div>
+      </div>
+      <p class="hint" id="emo-hint">גררו לפנים שמתאימות</p>
     </section>
 
     <!-- STUB / בקרוב -->
@@ -2781,7 +3127,7 @@
           quizDrag = null;
         }
         cancelPhaseDrags();
-        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play" && id !== "sort-play" && id !== "assoc-play" && id !== "pattern-play" && id !== "size-play" && id !== "puzzle-play") {
+        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play" && id !== "quiz-play" && id !== "sort-play" && id !== "assoc-play" && id !== "pattern-play" && id !== "size-play" && id !== "puzzle-play" && id !== "sd-play" && id !== "close-play" && id !== "emo-play") {
           celebrate.classList.remove("show");
           celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
         }
@@ -5363,6 +5709,527 @@
         },
       });
 
+      // ---- Phase 2: אותו/שונה · השלמה · רגשות ----
+      const SD_PACKS = {
+        easy: {
+          id: "easy",
+          label: "צבע ופרט",
+          subtitle: "קל",
+          playTitle: "אותו / שונה",
+          celebrate: "ראיתם אותו ושונה!",
+          preview: [
+            "assets/color_red_ball.png",
+            "assets/sd_ball_blue.png",
+            "assets/sd_duck_bow.png",
+            "assets/shape_star.png",
+          ],
+          rounds: [
+            {
+              kind: "match",
+              sample: "assets/color_red_ball.png",
+              answer: "red",
+              choices: [
+                { id: "red", src: "assets/color_red_ball.png" },
+                { id: "blue", src: "assets/sd_ball_blue.png" },
+              ],
+            },
+            {
+              kind: "match",
+              sample: "assets/shape_star.png",
+              answer: "yellow",
+              choices: [
+                { id: "yellow", src: "assets/shape_star.png" },
+                { id: "blue", src: "assets/sd_star_blue.png" },
+              ],
+            },
+            {
+              kind: "match",
+              sample: "assets/food_apple.png",
+              answer: "redapple",
+              choices: [
+                { id: "redapple", src: "assets/food_apple.png" },
+                { id: "green", src: "assets/sd_apple_green.png" },
+              ],
+            },
+            {
+              kind: "match",
+              sample: "assets/sd_duck_bow.png",
+              answer: "bow",
+              choices: [
+                { id: "bow", src: "assets/sd_duck_bow.png" },
+                { id: "plain", src: "assets/sd_duck.png" },
+              ],
+            },
+            {
+              kind: "odd",
+              answer: "blue",
+              choices: [
+                { id: "y1", src: "assets/shape_star.png" },
+                { id: "y2", src: "assets/shape_star.png" },
+                { id: "blue", src: "assets/sd_star_blue.png" },
+              ],
+            },
+          ],
+        },
+      };
+
+      const CLOSE_PACKS = {
+        easy: {
+          id: "easy",
+          label: "חלק גדול חסר",
+          subtitle: "קל",
+          playTitle: "השלימו את התמונה",
+          celebrate: "התמונה שלמה!",
+          preview: [
+            "assets/close_house_gap.png",
+            "assets/close_cat_piece.png",
+            "assets/close_bird_piece.png",
+            "assets/close_car_piece.png",
+          ],
+          rounds: [
+            {
+              gapSrc: "assets/close_house_gap.png",
+              full: "assets/close_house.png",
+              answer: "door",
+              gap: { l: 0.446, t: 0.456, w: 0.192, h: 0.429 },
+              choices: [
+                { id: "door", src: "assets/close_house_piece.png" },
+                { id: "wheel", src: "assets/close_car_piece.png" },
+                { id: "tail", src: "assets/close_bird_piece.png" },
+              ],
+            },
+            {
+              gapSrc: "assets/close_cat_gap.png",
+              full: "assets/close_cat.png",
+              answer: "head",
+              gap: { l: 0.368, t: 0.078, w: 0.283, h: 0.350 },
+              choices: [
+                { id: "head", src: "assets/close_cat_piece.png" },
+                { id: "door", src: "assets/close_house_piece.png" },
+                { id: "wheel", src: "assets/close_car_piece.png" },
+              ],
+            },
+            {
+              gapSrc: "assets/close_bird_gap.png",
+              full: "assets/close_bird.png",
+              answer: "tail",
+              gap: { l: 0.566, t: 0.031, w: 0.391, h: 0.886 },
+              choices: [
+                { id: "tail", src: "assets/close_bird_piece.png" },
+                { id: "head", src: "assets/close_cat_piece.png" },
+                { id: "door", src: "assets/close_house_piece.png" },
+              ],
+            },
+            {
+              gapSrc: "assets/close_car_gap.png",
+              full: "assets/close_car.png",
+              answer: "wheel",
+              gap: { l: 0.263, t: 0.489, w: 0.189, h: 0.336 },
+              choices: [
+                { id: "wheel", src: "assets/close_car_piece.png" },
+                { id: "tail", src: "assets/close_bird_piece.png" },
+                { id: "door", src: "assets/close_house_piece.png" },
+              ],
+            },
+          ],
+        },
+      };
+
+      const EMO_PACKS = {
+        happySad: {
+          id: "happySad",
+          label: "שמח ועצוב",
+          subtitle: "2 פנים · קל",
+          playTitle: "שמח או עצוב",
+          celebrate: "הפנים במקום!",
+          preview: [
+            "assets/emo_happy.png",
+            "assets/emo_sad.png",
+          ],
+          bins: [
+            { id: "happy", label: "שמח", icon: "assets/emo_happy.png" },
+            { id: "sad", label: "עצוב", icon: "assets/emo_sad.png" },
+          ],
+          items: [
+            { id: "h1", src: "assets/emo_happy.png", bin: "happy" },
+            { id: "h2", src: "assets/emo_happy.png", bin: "happy" },
+            { id: "s1", src: "assets/emo_sad.png", bin: "sad" },
+            { id: "s2", src: "assets/emo_sad.png", bin: "sad" },
+          ],
+        },
+      };
+
+      function placeTileIn(el, slot, drag) {
+        drag.clearGhost();
+        if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+        drag.resetStyles(el);
+        el.classList.add("placed");
+        el.style.position = "absolute";
+        el.style.inset = "4%";
+        el.style.pointerEvents = "none";
+        slot.classList.add("filled");
+        slot.appendChild(el);
+      }
+
+      function afterRound(done, renderNext) {
+        if (done) sfx.celebrateIn(700);
+        setTimeout(() => {
+          if (done) showCelebrate();
+          else renderNext();
+        }, 700);
+      }
+
+      // אותו / שונה — match rounds first, one drag-the-different round last
+      const sdStageEl = document.getElementById("sd-stage");
+      const sdChoicesEl = document.getElementById("sd-choices");
+      const sdProgressEl = document.getElementById("sd-progress");
+      const sdHintEl = document.getElementById("sd-hint");
+      const sdPlayTitleEl = document.getElementById("sd-play-title");
+      let currentSdPack = SD_PACKS.easy;
+      let sdIndex = 0;
+      let sdCorrect = 0;
+      let sdLocked = false;
+
+      function startSdPack(packId) {
+        activity = "sd";
+        currentSdPack = SD_PACKS[packId] || SD_PACKS.easy;
+        sdPlayTitleEl.textContent = currentSdPack.playTitle;
+        celebrateMsg.textContent = currentSdPack.celebrate;
+        showScreen("sd-play");
+        buildSd();
+      }
+
+      function buildSd() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        sdIndex = 0;
+        sdCorrect = 0;
+        sdLocked = false;
+        paintDots(sdProgressEl, currentSdPack.rounds.length, 0);
+        renderSdRound();
+      }
+
+      function renderSdRound() {
+        sdLocked = false;
+        const round = currentSdPack.rounds[sdIndex];
+        sdStageEl.innerHTML = "";
+        sdChoicesEl.innerHTML = "";
+        if (round.kind === "odd") {
+          sdHintEl.textContent = "גררו את השונה";
+          const bin = document.createElement("div");
+          bin.className = "sd-odd-slot";
+          bin.setAttribute("aria-label", "שונה");
+          const pair = document.createElement("div");
+          pair.className = "sd-odd-pair";
+          ["assets/color_red_ball.png", "assets/sd_ball_blue.png"].forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            pair.appendChild(img);
+          });
+          const label = document.createElement("p");
+          label.className = "sd-odd-label";
+          label.textContent = "שונה";
+          const well = document.createElement("div");
+          well.className = "sd-odd-well";
+          well.dataset.accepts = round.answer;
+          bin.appendChild(pair);
+          bin.appendChild(label);
+          bin.appendChild(well);
+          sdStageEl.appendChild(bin);
+        } else {
+          sdHintEl.textContent = "גררו את אותו";
+          const sample = document.createElement("div");
+          sample.className = "sd-sample";
+          const img = document.createElement("img");
+          img.src = round.sample;
+          img.alt = "";
+          img.draggable = false;
+          sample.appendChild(img);
+          const slot = document.createElement("div");
+          slot.className = "sd-slot";
+          slot.dataset.accepts = round.answer;
+          slot.setAttribute("aria-label", "אותו");
+          const ghost = document.createElement("img");
+          ghost.className = "sd-ghost";
+          ghost.src = round.sample;
+          ghost.alt = "";
+          ghost.draggable = false;
+          slot.appendChild(ghost);
+          sdStageEl.appendChild(sample);
+          sdStageEl.appendChild(slot);
+        }
+        shuffle(round.choices).forEach((choice) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = choice.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", choice.id);
+          tile.appendChild(cardImg(choice.src));
+          pool.appendChild(tile);
+          sdChoicesEl.appendChild(pool);
+          tile.addEventListener("pointerdown", sdDrag.onDown);
+        });
+      }
+
+      const sdDrag = createBoardDrag({
+        canStart() { return !sdLocked; },
+        hitTest(x, y) {
+          const odd = sdStageEl.querySelector(".sd-odd-slot:not(.filled)");
+          const slot = odd || sdStageEl.querySelector(".sd-slot:not(.filled)");
+          if (!slot) return null;
+          const r = slot.getBoundingClientRect();
+          const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+          slot.classList.toggle("over", hit);
+          if (!hit) return null;
+          return odd ? odd.querySelector(".sd-odd-well") : slot;
+        },
+        clearOver() {
+          sdStageEl.querySelectorAll(".sd-slot, .sd-odd-slot").forEach((s) => s.classList.remove("over"));
+        },
+        onDrop(el, slot, drag) {
+          if (!slot || slot.dataset.accepts !== el.dataset.id) return false;
+          const ghost = slot.querySelector(".sd-ghost");
+          if (ghost) ghost.remove();
+          placeTileIn(el, slot, drag);
+          const odd = slot.closest(".sd-odd-slot");
+          if (odd) {
+            odd.classList.remove("over");
+            odd.classList.add("filled");
+          }
+          slot.classList.remove("over");
+          sdLocked = true;
+          sdCorrect += 1;
+          paintDots(sdProgressEl, currentSdPack.rounds.length, sdCorrect);
+          sfx.success();
+          const done = sdCorrect >= currentSdPack.rounds.length;
+          afterRound(done, () => {
+            sdIndex += 1;
+            renderSdRound();
+          });
+          return true;
+        },
+      });
+
+      // השלם את התמונה
+      const closeStageEl = document.getElementById("close-stage");
+      const closeChoicesEl = document.getElementById("close-choices");
+      const closeProgressEl = document.getElementById("close-progress");
+      const closeHintEl = document.getElementById("close-hint");
+      const closePlayTitleEl = document.getElementById("close-play-title");
+      let currentClosePack = CLOSE_PACKS.easy;
+      let closeIndex = 0;
+      let closeCorrect = 0;
+      let closeLocked = false;
+      let closeRound = null;
+
+      function startClosePack(packId) {
+        activity = "close";
+        currentClosePack = CLOSE_PACKS[packId] || CLOSE_PACKS.easy;
+        closePlayTitleEl.textContent = currentClosePack.playTitle;
+        celebrateMsg.textContent = currentClosePack.celebrate;
+        showScreen("close-play");
+        buildClose();
+      }
+
+      function buildClose() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        closeIndex = 0;
+        closeCorrect = 0;
+        closeLocked = false;
+        paintDots(closeProgressEl, currentClosePack.rounds.length, 0);
+        closeHintEl.textContent = "גררו את החלק החסר";
+        renderCloseRound();
+      }
+
+      function renderCloseRound() {
+        closeLocked = false;
+        closeRound = currentClosePack.rounds[closeIndex];
+        const round = closeRound;
+        closeStageEl.innerHTML = "";
+        closeChoicesEl.innerHTML = "";
+        const img = document.createElement("img");
+        img.className = "close-scene";
+        img.id = "close-scene-img";
+        img.src = round.gapSrc;
+        img.alt = "";
+        img.draggable = false;
+        const gap = document.createElement("div");
+        gap.className = "close-gap";
+        gap.dataset.accepts = round.answer;
+        gap.style.left = (round.gap.l * 100) + "%";
+        gap.style.top = (round.gap.t * 100) + "%";
+        gap.style.width = (round.gap.w * 100) + "%";
+        gap.style.height = (round.gap.h * 100) + "%";
+        gap.setAttribute("aria-label", "החלק החסר");
+        closeStageEl.appendChild(img);
+        closeStageEl.appendChild(gap);
+        shuffle(round.choices).forEach((choice) => {
+          const pool = document.createElement("div");
+          pool.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = choice.id;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", choice.id);
+          tile.appendChild(cardImg(choice.src));
+          pool.appendChild(tile);
+          closeChoicesEl.appendChild(pool);
+          tile.addEventListener("pointerdown", closeDrag.onDown);
+        });
+      }
+
+      const closeDrag = createBoardDrag({
+        canStart() { return !closeLocked; },
+        hitTest(x, y) {
+          const gap = closeStageEl.querySelector(".close-gap:not(.filled)");
+          if (!gap) return null;
+          const r = gap.getBoundingClientRect();
+          const pad = 36;
+          const hit = x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+          gap.classList.toggle("over", hit);
+          return hit ? gap : null;
+        },
+        clearOver() {
+          closeStageEl.querySelectorAll(".close-gap").forEach((g) => g.classList.remove("over"));
+        },
+        onDrop(el, gap, drag) {
+          if (!gap || gap.dataset.accepts !== el.dataset.id) return false;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          drag.resetStyles(el);
+          el.remove();
+          gap.classList.remove("over");
+          gap.classList.add("filled");
+          const img = document.getElementById("close-scene-img");
+          if (img && closeRound) img.src = closeRound.full;
+          closeLocked = true;
+          closeCorrect += 1;
+          paintDots(closeProgressEl, currentClosePack.rounds.length, closeCorrect);
+          sfx.success();
+          const done = closeCorrect >= currentClosePack.rounds.length;
+          afterRound(done, () => {
+            closeIndex += 1;
+            renderCloseRound();
+          });
+          return true;
+        },
+      });
+
+      // רגשות — identical faces sorted into happy / sad bins
+      const emoBinsEl = document.getElementById("emo-bins");
+      const emoPoolEl = document.getElementById("emo-pool");
+      const emoProgressEl = document.getElementById("emo-progress");
+      const emoHintEl = document.getElementById("emo-hint");
+      const emoPlayTitleEl = document.getElementById("emo-play-title");
+      let currentEmoPack = EMO_PACKS.happySad;
+      let emoPlaced = new Set();
+
+      function startEmoPack(packId) {
+        activity = "emo";
+        currentEmoPack = EMO_PACKS[packId] || EMO_PACKS.happySad;
+        emoPlayTitleEl.textContent = currentEmoPack.playTitle;
+        celebrateMsg.textContent = currentEmoPack.celebrate;
+        showScreen("emo-play");
+        buildEmo();
+      }
+
+      function buildEmo() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        emoPlaced = new Set();
+        const pack = currentEmoPack;
+        paintDots(emoProgressEl, pack.items.length, 0);
+        emoHintEl.textContent = "גררו לפנים שמתאימות";
+        emoBinsEl.innerHTML = "";
+        emoPoolEl.innerHTML = "";
+        pack.bins.forEach((bin) => {
+          const el = document.createElement("div");
+          el.className = "emo-bin";
+          el.dataset.bin = bin.id;
+          el.setAttribute("aria-label", bin.label);
+          const icon = document.createElement("img");
+          icon.className = "emo-bin-icon";
+          icon.src = bin.icon;
+          icon.alt = "";
+          icon.draggable = false;
+          const label = document.createElement("p");
+          label.className = "emo-bin-label";
+          label.textContent = bin.label;
+          const drop = document.createElement("div");
+          drop.className = "emo-bin-drop";
+          const n = pack.items.filter((it) => it.bin === bin.id).length;
+          for (let i = 0; i < n; i++) {
+            const slot = document.createElement("div");
+            slot.className = "emo-bin-slot";
+            drop.appendChild(slot);
+          }
+          el.appendChild(icon);
+          el.appendChild(label);
+          el.appendChild(drop);
+          emoBinsEl.appendChild(el);
+        });
+        shuffle(pack.items).forEach((item) => {
+          const poolSlot = document.createElement("div");
+          poolSlot.className = "board-pool";
+          const tile = document.createElement("div");
+          tile.className = "board-tile";
+          tile.dataset.id = item.id;
+          tile.dataset.bin = item.bin;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", item.bin);
+          tile.appendChild(cardImg(item.src));
+          poolSlot.appendChild(tile);
+          emoPoolEl.appendChild(poolSlot);
+          tile.addEventListener("pointerdown", emoDrag.onDown);
+        });
+      }
+
+      const emoDrag = createBoardDrag({
+        canStart(el) { return !el.classList.contains("placed"); },
+        hitTest(x, y) {
+          let over = null;
+          emoBinsEl.querySelectorAll(".emo-bin").forEach((b) => {
+            const r = b.getBoundingClientRect();
+            const hit = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+            b.classList.toggle("over", hit);
+            if (hit) over = b;
+          });
+          return over;
+        },
+        clearOver() {
+          emoBinsEl.querySelectorAll(".emo-bin").forEach((b) => b.classList.remove("over"));
+        },
+        onDrop(el, bin, drag) {
+          if (!bin || bin.dataset.bin !== el.dataset.bin) return false;
+          const slot = bin.querySelector(".emo-bin-slot:not(.filled)");
+          if (!slot) return false;
+          const itemId = el.dataset.id;
+          drag.clearGhost();
+          if (drag.fromSlot) drag.fromSlot.classList.add("empty");
+          const img = el.querySelector("img");
+          drag.resetStyles(el);
+          el.remove();
+          if (img) {
+            img.className = "";
+            slot.appendChild(img);
+          }
+          slot.classList.add("filled");
+          bin.classList.remove("over");
+          bin.classList.add("flash-ok");
+          setTimeout(() => bin.classList.remove("flash-ok"), 500);
+          emoPlaced.add(itemId);
+          paintDots(emoProgressEl, currentEmoPack.items.length, emoPlaced.size);
+          sfx.success();
+          finishBoard(emoPlaced.size, currentEmoPack.items.length);
+          return true;
+        },
+      });
+
       // ---- Navigation wiring ----
       document.addEventListener("click", (e) => {
         const btn = e.target.closest("button.type-btn, button.pack-btn, button.nav-btn, button.btn");
@@ -5442,6 +6309,21 @@
           showScreen("puzzle-hub");
           return;
         }
+        if (btn.dataset.go === "sd-hub") {
+          activity = "sd";
+          showScreen("sd-hub");
+          return;
+        }
+        if (btn.dataset.go === "close-hub") {
+          activity = "close";
+          showScreen("close-hub");
+          return;
+        }
+        if (btn.dataset.go === "emo-hub") {
+          activity = "emo";
+          showScreen("emo-hub");
+          return;
+        }
         if (btn.dataset.stub) {
           document.getElementById("soon-title").textContent = btn.dataset.stub;
           document.getElementById("soon-heading").textContent = btn.dataset.stub;
@@ -5470,6 +6352,12 @@
       document.getElementById("size-play-back").addEventListener("click", () => showScreen("size-hub"));
       document.getElementById("puzzle-hub-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("puzzle-play-back").addEventListener("click", () => showScreen("puzzle-hub"));
+      document.getElementById("sd-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("sd-play-back").addEventListener("click", () => showScreen("sd-hub"));
+      document.getElementById("close-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("close-play-back").addEventListener("click", () => showScreen("close-hub"));
+      document.getElementById("emo-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("emo-play-back").addEventListener("click", () => showScreen("emo-hub"));
       document.getElementById("soon-back").addEventListener("click", () => showScreen("home"));
       document.getElementById("soon-home").addEventListener("click", () => showScreen("home"));
 
@@ -5483,6 +6371,9 @@
         else if (activity === "pattern") buildPattern();
         else if (activity === "size") buildSize();
         else if (activity === "puzzle") buildPuzzle();
+        else if (activity === "sd") buildSd();
+        else if (activity === "close") buildClose();
+        else if (activity === "emo") buildEmo();
         else build();
       });
       againBtn.addEventListener("pointerup", (e) => e.stopPropagation());
@@ -5499,6 +6390,9 @@
           pattern: "pattern-hub",
           size: "size-hub",
           puzzle: "puzzle-hub",
+          sd: "sd-hub",
+          close: "close-hub",
+          emo: "emo-hub",
         }[activity] || "match-hub";
         showScreen(hub);
       });
@@ -5521,6 +6415,9 @@
       fillPackGrid(document.getElementById("pattern-pack-grid"), PATTERN_PACKS, startPatternPack);
       fillPackGrid(document.getElementById("size-pack-grid"), SIZE_PACKS, startSizePack);
       fillPackGrid(document.getElementById("puzzle-pack-grid"), PUZZLE_PACKS, startPuzzlePack);
+      fillPackGrid(document.getElementById("sd-pack-grid"), SD_PACKS, startSdPack);
+      fillPackGrid(document.getElementById("close-pack-grid"), CLOSE_PACKS, startClosePack);
+      fillPackGrid(document.getElementById("emo-pack-grid"), EMO_PACKS, startEmoPack);
       showScreen("home");
     })();
   </script>
