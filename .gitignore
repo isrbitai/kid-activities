@@ -1,0 +1,22 @@
+# Archives / scratch
+*.tar.gz
+*.zip
+*.bak
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python gen scratch
+gen/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Editor / local
+*.swp
+*~
+.idea/
+.vscode/

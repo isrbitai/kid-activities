@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="משחקים" />
+  <title>משחקים</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --bg2: #eef6f2;
+      --ink: #3d4a45;
+      --soft: #8aa39a;
+      --card: #ffffff;
+      --ok: #5fbf7a;
+      --ok-glow: rgba(95, 191, 122, 0.55);
+      --wrong: #e8a0a0;
+      --shadow: 0 10px 28px rgba(61, 74, 69, 0.12);
+      --radius: 22px;
+      --gap: clamp(10px, 2vw, 18px);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: "Segoe UI", "Heebo", "Arial Hebrew", Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% 0%, #fff8e8 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 100%, #e5f4ef 0%, transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .app {
+      height: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+               max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .screen { display: none; flex: 1; min-height: 0; flex-direction: column; gap: 12px; }
+    .screen.active { display: flex; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .title {
+      font-size: clamp(1.15rem, 3.2vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0;
+      color: var(--ink);
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-btn {
+      appearance: none;
+      border: none;
+      background: white;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      width: clamp(52px, 10vw, 64px);
+      height: clamp(52px, 10vw, 64px);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .nav-btn:active { transform: scale(0.95); }
+    .nav-spacer { width: clamp(52px, 10vw, 64px); flex-shrink: 0; }
+
+    .progress {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #d7e2dc;
+      transition: background .25s, transform .25s, box-shadow .25s;
+    }
+    .dot.on {
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(95,191,122,.22);
+      transform: scale(1.15);
+    }
+
+    /* ---- Home / hub grids ---- */
+    .menu-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 8px;
+    }
+
+    .home-title {
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 800;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .home-sub {
+      margin: 0;
+      color: var(--soft);
+      font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+    }
+
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: clamp(12px, 2.5vw, 20px);
+      width: 100%;
+      max-width: 860px;
+    }
+
+    .type-btn {
+      appearance: none;
+      border: none;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 3vw, 28px) 12px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: clamp(130px, 28vh, 200px);
+      transition: transform .15s, box-shadow .15s;
+      border: 3px solid transparent;
+    }
+    .type-btn:active { transform: scale(0.96); }
+    .type-btn .emoji {
+      font-size: clamp(2.6rem, 8vw, 3.6rem);
+      line-height: 1;
+      filter: drop-shadow(0 4px 8px rgba(61,74,69,.12));
+    }
+    .type-btn .label {
+      font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .type-btn.soon {
+      opacity: 0.92;
+    }
+    .type-btn.soon .badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--soft);
+      background: #f0ebe1;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .pack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: clamp(14px, 3vw, 24px);
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .pack-btn {
+      appearance: none;
+      border: none;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 20px 16px 22px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-height: 200px;
+      border: 3px solid transparent;
+      transition: transform .15s, border-color .15s;
+    }
+    .pack-btn:active { transform: scale(0.97); }
+    .pack-btn:hover, .pack-btn:focus-visible {
+      border-color: #9fd4b0;
+    }
+    .pack-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 200px;
+    }
+    .pack-preview img {
+      width: 100%;
+      aspect-ratio: 1.5;
+      object-fit: contain;
+      background: #faf7f0;
+      border-radius: 12px;
+      border: 2px solid #efe9de;
+    }
+    .pack-btn .label {
+      font-size: clamp(1.15rem, 3vw, 1.4rem);
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    /* ---- Stub / בקרוב ---- */
+    .soon-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: white;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      margin: 8px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .soon-card .big-emoji { font-size: 4rem; }
+    .soon-card h2 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.2rem); }
+    .soon-card p { margin: 0; color: var(--soft); font-size: 1.15rem; }
+
+    /* ---- Matching board ---- */
+    .board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: var(--gap);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap);
+      min-height: 0;
+    }
+
+    .slot, .home {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+      border: 3px solid transparent;
+      transition: border-color .2s, box-shadow .2s, transform .2s, background .2s;
+    }
+
+    .home {
+      background: linear-gradient(180deg, #ffffff 0%, #f4faf7 100%);
+    }
+
+    .home.over {
+      border-color: #9fd4b0;
+      box-shadow: 0 0 0 6px rgba(95,191,122,.18), var(--shadow);
+      transform: scale(1.02);
+    }
+
+    .home.matched {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+    }
+
+    .home.matched::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(95,191,122,.45);
+      z-index: 3;
+      animation: pop .35s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .card-img {
+      width: 92%;
+      height: 92%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 14px;
+    }
+
+    .animal {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow .2s, transform .15s;
+      will-change: transform;
+    }
+
+    .animal:active { cursor: grabbing; }
+
+    .animal.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      opacity: 0.98;
+      cursor: grabbing;
+    }
+
+    .animal-ghost {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
+
+    .animal.matched {
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .animal.shake {
+      animation: shake .45s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px) rotate(-2deg); }
+      40% { transform: translateX(10px) rotate(2deg); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+
+    .slot.empty {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f3efe6,
+        #f3efe6 10px,
+        #efe9de 10px,
+        #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+
+    .hint {
+      text-align: center;
+      color: var(--soft);
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      flex-shrink: 0;
+      margin: 0;
+      min-height: 1.2em;
+    }
+
+    .celebrate {
+      position: fixed;
+      inset: 0;
+      background: rgba(247, 243, 234, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 24px;
+    }
+    .celebrate.show { display: flex; }
+
+    .celebrate-card {
+      background: white;
+      border-radius: 28px;
+      padding: clamp(24px, 5vw, 40px);
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(61,74,69,.2);
+      max-width: 420px;
+      width: 100%;
+      animation: rise .45s ease;
+    }
+    @keyframes rise {
+      from { transform: translateY(24px) scale(.96); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+
+    .stars {
+      font-size: clamp(2rem, 8vw, 3rem);
+      letter-spacing: .15em;
+      margin-bottom: 8px;
+      animation: twinkle 1.2s ease infinite alternate;
+    }
+    @keyframes twinkle {
+      from { transform: scale(1); filter: saturate(1); }
+      to { transform: scale(1.08); filter: saturate(1.3); }
+    }
+
+    .celebrate h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      color: var(--ink);
+    }
+    .celebrate p {
+      margin: 0 0 22px;
+      color: var(--soft);
+      font-size: 1.05rem;
+    }
+
+    .celebrate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      background: linear-gradient(180deg, #6dca88, #4fb36d);
+      color: white;
+      font-weight: 700;
+      font-size: 1.15rem;
+      padding: 14px 28px;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(79,179,109,.35);
+      cursor: pointer;
+      min-width: 150px;
+      min-height: 52px;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.secondary {
+      background: white;
+      color: var(--ink);
+      box-shadow: 0 8px 20px rgba(61,74,69,.12);
+      border: 2px solid #e5ebe7;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px; height: 14px;
+      border-radius: 3px;
+      top: -20px;
+      animation: fall linear forwards;
+      pointer-events: none;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0.2; }
+    }
+
+    @media (max-height: 560px) {
+      .title { font-size: 1.05rem; }
+      .hint { display: none; }
+      .home.matched::after { width: 22px; height: 22px; font-size: 14px; }
+      .home-sub { display: none; }
+    }
+
+    @media (orientation: portrait) and (max-width: 700px) {
+      .board { grid-template-rows: 1.05fr 1fr; }
+      .type-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ---- Choose (בחירה) ---- */
+    .choose-board {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 3vh, 28px);
+      padding: 4px 0;
+    }
+
+    .choose-prompt {
+      width: min(42vw, 280px);
+      aspect-ratio: 1.35;
+      max-height: 34vh;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #9fd4b0;
+      padding: 10px;
+      flex-shrink: 0;
+      transition: border-color .25s, box-shadow .25s, background .25s, transform .25s;
+    }
+    .choose-prompt img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 16px;
+    }
+    .choose-prompt.ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+      transform: scale(1.03);
+    }
+
+    .choose-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(12px, 2.5vw, 22px);
+      width: 100%;
+      max-width: 920px;
+      flex: 0 1 auto;
+      min-height: 0;
+    }
+
+    .choice-card {
+      appearance: none;
+      border: 4px solid transparent;
+      background: var(--card);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: clamp(8px, 1.5vw, 14px);
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1.2;
+      min-height: clamp(110px, 22vh, 200px);
+      max-height: 28vh;
+      transition: transform .15s, border-color .2s, box-shadow .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .choice-card img {
+      width: 92%;
+      height: 92%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 14px;
+    }
+    .choice-card:active:not(:disabled) { transform: scale(0.96); }
+    .choice-card:disabled { cursor: default; }
+
+    .choice-card.correct {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+      transform: scale(1.04);
+    }
+    .choice-card.correct::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(95,191,122,.45);
+      animation: pop .35s ease;
+    }
+    .choice-card.wrong {
+      border-color: var(--wrong);
+      animation: softShake .5s ease;
+    }
+    .choice-card.dim {
+      opacity: 0.45;
+      filter: grayscale(0.25);
+    }
+
+    @keyframes softShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-1.5deg); }
+      40% { transform: translateX(8px) rotate(1.5deg); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    .pack-btn .pack-sub {
+      font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+      font-weight: 700;
+      color: var(--soft);
+      margin-top: -6px;
+    }
+
+    @media (max-height: 560px) {
+      .choose-prompt { max-height: 28vh; }
+      .choice-card { min-height: 90px; max-height: 24vh; }
+    }
+    @media (orientation: portrait) and (max-width: 700px) {
+      .choose-choices { gap: 10px; }
+      .choose-prompt { width: min(70vw, 240px); }
+    }
+
+
+    /* ---- Visual Quiz (חידון ויזואלי) ---- */
+    .quiz-board {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(14px, 3vh, 28px);
+      padding: 4px 0;
+    }
+
+    .quiz-clue {
+      width: min(48vw, 320px);
+      aspect-ratio: 1;
+      max-height: 36vh;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #a8c9d8;
+      padding: 12px;
+      flex-shrink: 0;
+      transition: border-color .25s, box-shadow .25s, background .25s, transform .25s;
+      overflow: hidden;
+      position: relative;
+    }
+    .quiz-clue img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 16px;
+      transition: filter .2s;
+    }
+    .quiz-clue.silhouetted img {
+      filter: brightness(0);
+      opacity: 0.78;
+    }
+    .quiz-clue.ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+      transform: scale(1.03);
+    }
+    .quiz-clue.ok.silhouetted img {
+      filter: none;
+      opacity: 1;
+    }
+
+    .quiz-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(14px, 3vw, 26px);
+      width: 100%;
+      max-width: 960px;
+      flex: 0 1 auto;
+      min-height: 0;
+    }
+
+    .quiz-card {
+      appearance: none;
+      border: 5px solid transparent;
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(10px, 1.8vw, 16px);
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1.15;
+      min-height: clamp(120px, 24vh, 220px);
+      max-height: 30vh;
+      transition: transform .15s, border-color .2s, box-shadow .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .quiz-card img {
+      width: 94%;
+      height: 94%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 14px;
+    }
+    .quiz-card:active:not(:disabled) { transform: scale(0.96); }
+    .quiz-card:disabled { cursor: default; }
+
+    .quiz-card.correct {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 8px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+      transform: scale(1.05);
+    }
+    .quiz-card.correct::after {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(95,191,122,.45);
+      animation: pop .35s ease;
+    }
+    .quiz-card.wrong {
+      border-color: var(--wrong);
+      animation: softShake .5s ease;
+    }
+    .quiz-card.dim {
+      opacity: 0.45;
+      filter: grayscale(0.25);
+    }
+
+    @media (max-height: 560px) {
+      .quiz-clue { max-height: 30vh; }
+      .quiz-card { min-height: 96px; max-height: 26vh; }
+    }
+    @media (orientation: portrait) and (max-width: 700px) {
+      .quiz-choices { gap: 12px; }
+      .quiz-clue { width: min(72vw, 260px); }
+    }
+
+    /* ---- Sequence (רצף) ---- */
+    .seq-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: clamp(8px, 1.2vw, 12px);
+    }
+    .seq-hint-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(10px, 2vw, 18px);
+      direction: ltr;
+      padding: 6px 8px;
+      background: rgba(255,255,255,.55);
+      border-radius: 16px;
+      border: 1px solid rgba(213,205,192,.55);
+      min-height: 0;
+    }
+    .seq-hint-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.42;
+      pointer-events: none;
+      max-width: clamp(72px, 14vw, 110px);
+    }
+    .seq-hint-item img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 656 / 376;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid rgba(180,170,155,.45);
+      filter: saturate(0.85);
+    }
+    .seq-hint-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #e8e2d6;
+      color: var(--soft);
+      font-size: 0.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .seq-hint-arrow {
+      color: #c5bcae;
+      font-size: 1.1rem;
+      font-weight: 700;
+      opacity: 0.55;
+      user-select: none;
+    }
+    .seq-slots {
+      display: grid;
+      grid-template-columns: repeat(var(--seq-cols, 3), 1fr);
+      gap: clamp(12px, 2.2vw, 20px);
+      direction: ltr;
+      min-height: 0;
+    }
+    .seq-slot {
+      position: relative;
+      background: repeating-linear-gradient(
+        -45deg,
+        #f3efe6,
+        #f3efe6 10px,
+        #efe9de 10px,
+        #efe9de 20px
+      );
+      border-radius: var(--radius);
+      border: 2px dashed #d5cdc0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: clamp(120px, 28vh, 210px);
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s, background .2s;
+    }
+    .seq-slot .step-num {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #e8e2d6;
+      color: var(--soft);
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .seq-slot.over {
+      border-color: #9fd4b0;
+      border-style: solid;
+      box-shadow: 0 0 0 6px rgba(95,191,122,.18), var(--shadow);
+      transform: scale(1.02);
+      background: #f0fff4;
+    }
+    .seq-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+      box-shadow: 0 0 0 6px var(--ok-glow), var(--shadow);
+    }
+    .seq-slot.filled .step-num {
+      background: var(--ok);
+      color: white;
+    }
+    .seq-slot.next-target {
+      border-color: #b7d9c4;
+      border-style: solid;
+      box-shadow: 0 0 0 4px rgba(95,191,122,.12);
+    }
+    .seq-pool {
+      display: grid;
+      grid-template-columns: repeat(var(--seq-cols, 3), 1fr);
+      gap: clamp(12px, 2.2vw, 20px);
+      direction: ltr;
+      min-height: 0;
+    }
+    .seq-pool-slot {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: clamp(120px, 28vh, 210px);
+      overflow: hidden;
+      border: 3px solid transparent;
+    }
+    .seq-pool-slot.empty {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f3efe6,
+        #f3efe6 10px,
+        #efe9de 10px,
+        #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+    .seq-tile {
+      position: absolute;
+      inset: 5%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow .2s, transform .15s;
+      will-change: transform;
+    }
+    .seq-tile:active { cursor: grabbing; }
+    .seq-tile.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      opacity: 0.98;
+      cursor: grabbing;
+      pointer-events: none;
+    }
+    .seq-tile.placed {
+      pointer-events: none;
+      cursor: default;
+    }
+    .seq-tile.shake {
+      animation: softShake .55s ease;
+    }
+    .seq-tile-ghost {
+      position: absolute;
+      inset: 5%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
+    .seq-arrows {
+      display: none;
+    }
+    @keyframes softShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+    @media (max-height: 560px) {
+      .seq-slot, .seq-pool-slot { min-height: 96px; }
+      .seq-hint-strip { display: none; }
+    }
+    @media (orientation: portrait) and (max-width: 700px) {
+      .seq-slots, .seq-pool {
+        grid-template-columns: repeat(var(--seq-cols, 3), 1fr);
+        gap: 8px;
+      }
+    }
+
+
+    /* ---- Categories (קטגוריות) ---- */
+    .cat-board {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(140px, 1.05fr) minmax(120px, 0.95fr);
+      gap: clamp(10px, 2vw, 16px);
+    }
+    .cat-bins {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 2.5vw, 22px);
+      min-height: 0;
+    }
+    .cat-bin {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #f4faf7 100%);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      border: 4px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px 12px 12px;
+      min-height: 0;
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s, background .2s;
+      gap: 6px;
+    }
+    .cat-bin[data-cat="animals"] {
+      background: linear-gradient(180deg, #f5fff8 0%, #e8f6ec 100%);
+      border-color: rgba(95, 175, 120, 0.35);
+    }
+    .cat-bin[data-cat="vehicles"] {
+      background: linear-gradient(180deg, #f3f8ff 0%, #e4eefc 100%);
+      border-color: rgba(90, 150, 210, 0.35);
+    }
+    .cat-bin.over {
+      border-color: #9fd4b0;
+      box-shadow: 0 0 0 8px rgba(95,191,122,.2), var(--shadow);
+      transform: scale(1.015);
+    }
+    .cat-bin.flash-ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 10px var(--ok-glow), var(--shadow);
+      background: linear-gradient(180deg, #f0fff4 0%, #e6f8eb 100%);
+    }
+    .cat-bin-icon {
+      width: min(100%, 280px);
+      max-height: 38%;
+      object-fit: contain;
+      border-radius: 16px;
+      pointer-events: none;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+    .cat-bin-label {
+      font-size: clamp(1.15rem, 3.2vw, 1.55rem);
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+    .cat-bin-drop {
+      flex: 1;
+      min-height: 56px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      align-content: center;
+      justify-items: center;
+      padding: 4px;
+    }
+    .cat-bin-slot {
+      width: 100%;
+      aspect-ratio: 1.35;
+      max-height: 100%;
+      border-radius: 14px;
+      border: 2px dashed rgba(138, 163, 154, 0.45);
+      background: rgba(255,255,255,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .cat-bin-slot.filled {
+      border-style: solid;
+      border-color: var(--ok);
+      background: #f0fff4;
+      box-shadow: 0 0 0 3px rgba(95,191,122,.22);
+    }
+    .cat-bin-slot.filled::after {
+      content: "✓";
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--ok);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      animation: pop .35s ease;
+    }
+    .cat-bin-slot img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 10px;
+    }
+    .cat-pool {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: clamp(8px, 1.5vw, 14px);
+      min-height: 0;
+      align-content: center;
+    }
+    .cat-pool-slot {
+      position: relative;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      min-height: 0;
+      overflow: hidden;
+      border: 3px solid transparent;
+      aspect-ratio: 1.25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cat-pool-slot.empty {
+      background: repeating-linear-gradient(
+        -45deg, #f3efe6, #f3efe6 10px, #efe9de 10px, #efe9de 20px
+      );
+      border: 2px dashed #d5cdc0;
+      box-shadow: none;
+    }
+    .cat-tile {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow .2s, transform .15s, outline .15s;
+      will-change: transform;
+      outline: 3px solid transparent;
+    }
+    .cat-tile:active { cursor: grabbing; }
+    .cat-tile.dragging {
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(61,74,69,.28);
+      transform: scale(1.06);
+      opacity: 0.98;
+      cursor: grabbing;
+    }
+    .cat-tile.armed {
+      outline-color: #7eb6e8;
+      box-shadow: 0 0 0 6px rgba(126,182,232,.28), var(--shadow);
+      transform: scale(1.04);
+    }
+    .cat-tile.shake {
+      animation: softShake .5s ease;
+    }
+    .cat-tile-ghost {
+      position: absolute;
+      inset: 6%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.15);
+      z-index: 1;
+    }
+    .cat-bin.armed-target {
+      border-color: #7eb6e8;
+      box-shadow: 0 0 0 8px rgba(126,182,232,.22), var(--shadow);
+    }
+    @media (max-height: 560px) {
+      .cat-bin-icon { max-height: 28%; }
+      .cat-bin-label { font-size: 1rem; }
+    }
+    @media (orientation: portrait) and (max-width: 700px) {
+      .cat-board {
+        grid-template-rows: minmax(160px, 1.1fr) minmax(140px, 1fr);
+      }
+      .cat-pool {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .cat-bin-drop { min-height: 48px; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- HOME -->
+    <section class="screen active" id="screen-home" aria-label="בית">
+      <div class="menu-wrap">
+        <h1 class="home-title">משחקים</h1>
+        <p class="home-sub">בחרו משחק · אין צורך לדבר</p>
+        <div class="type-grid" id="type-grid">
+          <button class="type-btn" type="button" data-go="match-hub">
+            <span class="emoji" aria-hidden="true">🧩</span>
+            <span class="label">התאמה</span>
+          </button>
+          <button class="type-btn" type="button" data-go="choose-hub">
+            <span class="emoji" aria-hidden="true">👆</span>
+            <span class="label">בחירה</span>
+          </button>
+          <button class="type-btn" type="button" data-go="sequence-hub">
+            <span class="emoji" aria-hidden="true">🔢</span>
+            <span class="label">רצף</span>
+          </button>
+          <button class="type-btn" type="button" data-go="categories-hub">
+            <span class="emoji" aria-hidden="true">📦</span>
+            <span class="label">קטגוריות</span>
+          </button>
+          <button class="type-btn" type="button" data-go="quiz-hub">
+            <span class="emoji" aria-hidden="true">👀</span>
+            <span class="label">חידון ויזואלי</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MATCH HUB -->
+    <section class="screen" id="screen-match-hub" aria-label="התאמה">
+      <header>
+        <button class="nav-btn" type="button" id="hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">התאמה — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="screen" id="screen-play" aria-label="משחק">
+      <header>
+        <button class="nav-btn" type="button" id="play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="play-title">גררו להתאמה</h1>
+        <div class="progress" id="progress" aria-hidden="true">
+          <span class="dot" data-i="0"></span>
+          <span class="dot" data-i="1"></span>
+          <span class="dot" data-i="2"></span>
+          <span class="dot" data-i="3"></span>
+        </div>
+      </header>
+
+      <div class="board">
+        <div class="row" id="animals-row" aria-label="פריטים"></div>
+        <div class="row" id="homes-row" aria-label="יעדים"></div>
+      </div>
+
+      <p class="hint" id="hint">גררו עם האצבע · אין צורך לדבר</p>
+    </section>
+
+
+    <!-- CHOOSE HUB -->
+    <section class="screen" id="screen-choose-hub" aria-label="בחירה">
+      <header>
+        <button class="nav-btn" type="button" id="choose-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">בחירה — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="choose-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- CHOOSE PLAY -->
+    <section class="screen" id="screen-choose-play" aria-label="בחירה משחק">
+      <header>
+        <button class="nav-btn" type="button" id="choose-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="choose-play-title">מה שייך?</h1>
+        <div class="progress" id="choose-progress" aria-hidden="true"></div>
+      </header>
+
+      <div class="choose-board">
+        <div class="choose-prompt" id="choose-prompt" aria-label="שאלה">
+          <img id="choose-prompt-img" alt="" draggable="false" />
+        </div>
+        <div class="choose-choices" id="choose-choices" aria-label="אפשרויות"></div>
+      </div>
+
+      <p class="hint" id="choose-hint">לחצו על התמונה ששייכת · אין צורך לדבר</p>
+    </section>
+
+
+    <!-- SEQUENCE HUB -->
+    <section class="screen" id="screen-sequence-hub" aria-label="רצף">
+      <header>
+        <button class="nav-btn" type="button" id="sequence-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">רצף — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="sequence-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- SEQUENCE PLAY -->
+    <section class="screen" id="screen-sequence-play" aria-label="רצף משחק">
+      <header>
+        <button class="nav-btn" type="button" id="sequence-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="sequence-play-title">סדרו לפי הסדר</h1>
+        <div class="progress" id="sequence-progress" aria-hidden="true"></div>
+      </header>
+
+      <div class="seq-board">
+        <div class="seq-hint-strip" id="seq-hint-strip" aria-hidden="true"></div>
+        <div class="seq-slots" id="seq-slots" aria-label="סדר נכון"></div>
+        <div class="seq-pool" id="seq-pool" aria-label="אריחים"></div>
+      </div>
+
+      <p class="hint" id="sequence-hint">גררו או לחצו — יש רמז למעלה</p>
+    </section>
+
+
+    <!-- CATEGORIES HUB -->
+    <section class="screen" id="screen-categories-hub" aria-label="קטגוריות">
+      <header>
+        <button class="nav-btn" type="button" id="categories-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">קטגוריות — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="categories-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES PLAY -->
+    <section class="screen" id="screen-categories-play" aria-label="קטגוריות משחק">
+      <header>
+        <button class="nav-btn" type="button" id="categories-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="categories-play-title">שייכו לקבוצה</h1>
+        <div class="progress" id="categories-progress" aria-hidden="true"></div>
+      </header>
+
+      <div class="cat-board">
+        <div class="cat-bins" id="cat-bins" aria-label="קבוצות"></div>
+        <div class="cat-pool" id="cat-pool" aria-label="פריטים"></div>
+      </div>
+
+      <p class="hint" id="categories-hint">גררו או לחצו — שייכו לקבוצה</p>
+    </section>
+
+
+    <!-- QUIZ HUB -->
+    <section class="screen" id="screen-quiz-hub" aria-label="חידון ויזואלי">
+      <header>
+        <button class="nav-btn" type="button" id="quiz-hub-back" aria-label="חזרה">→</button>
+        <h1 class="title">חידון ויזואלי — בחרו ערכה</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="menu-wrap">
+        <div class="pack-grid" id="quiz-pack-grid"></div>
+      </div>
+    </section>
+
+    <!-- QUIZ PLAY -->
+    <section class="screen" id="screen-quiz-play" aria-label="חידון משחק">
+      <header>
+        <button class="nav-btn" type="button" id="quiz-play-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="quiz-play-title">מי זה?</h1>
+        <div class="progress" id="quiz-progress" aria-hidden="true"></div>
+      </header>
+
+      <div class="quiz-board">
+        <div class="quiz-clue" id="quiz-clue" aria-label="רמז">
+          <img id="quiz-clue-img" alt="" draggable="false" />
+        </div>
+        <div class="quiz-choices" id="quiz-choices" aria-label="אפשרויות"></div>
+      </div>
+
+      <p class="hint" id="quiz-hint">לחצו על החיה שמתאימה · אין צורך לדבר</p>
+    </section>
+
+    <!-- STUB / בקרוב -->
+    <section class="screen" id="screen-soon" aria-label="בקרוב">
+      <header>
+        <button class="nav-btn" type="button" id="soon-back" aria-label="חזרה">→</button>
+        <h1 class="title" id="soon-title">בקרוב</h1>
+        <div class="nav-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="soon-card">
+        <div class="big-emoji" id="soon-emoji">✨</div>
+        <h2 id="soon-heading">בקרוב</h2>
+        <p>המשחק הזה עוד לא מוכן · חזרו לבית</p>
+        <button class="btn" type="button" id="soon-home">לבית</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="celebrate" id="celebrate" role="dialog" aria-modal="true">
+    <div class="celebrate-card">
+      <div class="stars">⭐ 🎉 ⭐</div>
+      <h2>כל הכבוד!</h2>
+      <p id="celebrate-msg">הכל מותאם</p>
+      <div class="celebrate-actions">
+        <button class="btn" id="again" type="button">עוד פעם</button>
+        <button class="btn secondary" id="celebrate-hub" type="button">ערכות</button>
+        <button class="btn secondary" id="celebrate-home" type="button">בית</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const PACKS = {
+        animals: {
+          id: "animals",
+          label: "חיות",
+          playTitle: "גררו חיה לבית שלה",
+          celebrate: "כל החיות מצאו בית",
+          preview: ["assets/cat.png", "assets/dog.png", "assets/bird.png", "assets/fish.png"],
+          pairs: [
+            { id: "cat",  animal: "assets/cat.png",  home: "assets/milk.png",     homeId: "milk" },
+            { id: "dog",  animal: "assets/dog.png",  home: "assets/bone.png",     homeId: "bone" },
+            { id: "bird", animal: "assets/bird.png", home: "assets/nest.png",     homeId: "nest" },
+            { id: "fish", animal: "assets/fish.png", home: "assets/fishbowl.png", homeId: "fishbowl" },
+          ],
+        },
+        vehicles: {
+          id: "vehicles",
+          label: "כלי תחבורה",
+          playTitle: "גררו רכב למקום שלו",
+          celebrate: "כל כלי התחבורה במקום",
+          preview: ["assets/car.png", "assets/boat.png", "assets/plane.png", "assets/train.png"],
+          pairs: [
+            { id: "car",   animal: "assets/car.png",   home: "assets/garage.png", homeId: "garage" },
+            { id: "boat",  animal: "assets/boat.png",  home: "assets/water.png",  homeId: "water" },
+            { id: "plane", animal: "assets/plane.png", home: "assets/cloud.png",  homeId: "cloud" },
+            { id: "train", animal: "assets/train.png", home: "assets/tracks.png", homeId: "tracks" },
+          ],
+        },
+        shapes: {
+          id: "shapes",
+          label: "צורות",
+          playTitle: "גררו צורה לצללית שלה",
+          celebrate: "כל הצורות מצאו מקום",
+          preview: [
+            "assets/shape_circle.png",
+            "assets/shape_square.png",
+            "assets/shape_triangle.png",
+            "assets/shape_star.png",
+          ],
+          pairs: [
+            { id: "circle",   animal: "assets/shape_circle.png",   home: "assets/outline_circle.png",   homeId: "outline_circle" },
+            { id: "square",   animal: "assets/shape_square.png",   home: "assets/outline_square.png",   homeId: "outline_square" },
+            { id: "triangle", animal: "assets/shape_triangle.png", home: "assets/outline_triangle.png", homeId: "outline_triangle" },
+            { id: "star",     animal: "assets/shape_star.png",     home: "assets/outline_star.png",     homeId: "outline_star" },
+          ],
+        },
+        colors: {
+          id: "colors",
+          label: "צבעים",
+          playTitle: "גררו חפץ לצבע שלו",
+          celebrate: "כל הצבעים במקום",
+          preview: [
+            "assets/color_red_ball.png",
+            "assets/color_blue_fish.png",
+            "assets/color_yellow_sun.png",
+            "assets/color_green_leaf.png",
+          ],
+          pairs: [
+            { id: "red",    animal: "assets/color_red_ball.png",    home: "assets/color_red_blob.png",    homeId: "red_blob" },
+            { id: "blue",   animal: "assets/color_blue_fish.png",   home: "assets/color_blue_blob.png",   homeId: "blue_blob" },
+            { id: "yellow", animal: "assets/color_yellow_sun.png",  home: "assets/color_yellow_blob.png", homeId: "yellow_blob" },
+            { id: "green",  animal: "assets/color_green_leaf.png",  home: "assets/color_green_blob.png",  homeId: "green_blob" },
+          ],
+        },
+      };
+
+
+      const CHOOSE_PACKS = {
+        animalsBelong: {
+          id: "animalsBelong",
+          label: "חיות",
+          subtitle: "מה שייך?",
+          playTitle: "מה שייך?",
+          celebrate: "כל התשובות נכונות!",
+          preview: ["assets/cat.png", "assets/milk.png", "assets/dog.png", "assets/bone.png"],
+          // 6 rounds: prompt animal → belonging object among 2 wrongs
+          rounds: [
+            {
+              prompt: "assets/cat.png", promptId: "cat",
+              correct: "assets/milk.png", correctId: "milk",
+              wrong: [
+                { src: "assets/bone.png", id: "bone" },
+                { src: "assets/nest.png", id: "nest" },
+              ],
+            },
+            {
+              prompt: "assets/dog.png", promptId: "dog",
+              correct: "assets/bone.png", correctId: "bone",
+              wrong: [
+                { src: "assets/milk.png", id: "milk" },
+                { src: "assets/fishbowl.png", id: "fishbowl" },
+              ],
+            },
+            {
+              prompt: "assets/bird.png", promptId: "bird",
+              correct: "assets/nest.png", correctId: "nest",
+              wrong: [
+                { src: "assets/bone.png", id: "bone" },
+                { src: "assets/milk.png", id: "milk" },
+              ],
+            },
+            {
+              prompt: "assets/fish.png", promptId: "fish",
+              correct: "assets/fishbowl.png", correctId: "fishbowl",
+              wrong: [
+                { src: "assets/nest.png", id: "nest" },
+                { src: "assets/bone.png", id: "bone" },
+              ],
+            },
+            {
+              prompt: "assets/milk.png", promptId: "milk",
+              correct: "assets/cat.png", correctId: "cat",
+              wrong: [
+                { src: "assets/dog.png", id: "dog" },
+                { src: "assets/bird.png", id: "bird" },
+              ],
+            },
+            {
+              prompt: "assets/nest.png", promptId: "nest",
+              correct: "assets/bird.png", correctId: "bird",
+              wrong: [
+                { src: "assets/fish.png", id: "fish" },
+                { src: "assets/dog.png", id: "dog" },
+              ],
+            },
+          ],
+        },
+      };
+
+
+      const SEQUENCE_PACKS = {
+        dogDay: {
+          id: "dogDay",
+          label: "יום של כלב",
+          subtitle: "מתעורר · אוכל · ישן",
+          playTitle: "סדרו את יום הכלב",
+          celebrate: "יום מושלם לכלב!",
+          prefillFirst: true,
+          preview: [
+            "assets/seq_wake.png",
+            "assets/seq_eat.png",
+            "assets/seq_sleep.png",
+          ],
+          steps: [
+            { id: "wake",  src: "assets/seq_wake.png" },
+            { id: "eat",   src: "assets/seq_eat.png" },
+            { id: "sleep", src: "assets/seq_sleep.png" },
+          ],
+        },
+      };
+
+
+      const CATEGORY_PACKS = {
+        animalsVehicles: {
+          id: "animalsVehicles",
+          label: "חיות · כלי תחבורה",
+          subtitle: "2 קבוצות · קל",
+          playTitle: "שייכו לקבוצה",
+          celebrate: "הכל במקום הנכון!",
+          preview: ["assets/cat.png", "assets/dog.png", "assets/car.png", "assets/boat.png"],
+          bins: [
+            {
+              id: "animals",
+              label: "חיות",
+              icon: "assets/bin_animals.png",
+            },
+            {
+              id: "vehicles",
+              label: "כלי תחבורה",
+              icon: "assets/bin_vehicles.png",
+            },
+          ],
+          items: [
+            { id: "cat",   src: "assets/cat.png",   bin: "animals" },
+            { id: "dog",   src: "assets/dog.png",   bin: "animals" },
+            { id: "bird",  src: "assets/bird.png",  bin: "animals" },
+            { id: "car",   src: "assets/car.png",   bin: "vehicles" },
+            { id: "boat",  src: "assets/boat.png",  bin: "vehicles" },
+            { id: "train", src: "assets/train.png", bin: "vehicles" },
+          ],
+        },
+      };
+
+
+      const QUIZ_PACKS = {
+        animalsEasy: {
+          id: "animalsEasy",
+          label: "חיות",
+          subtitle: "חלק או צללית · קל",
+          playTitle: "מי זה?",
+          celebrate: "מצאתם את כולם!",
+          preview: [
+            "assets/quiz_cat_ear.png",
+            "assets/quiz_dog_nose.png",
+            "assets/quiz_bird_beak.png",
+            "assets/quiz_fish_tail.png",
+          ],
+          animals: {
+            cat:  "assets/cat.png",
+            dog:  "assets/dog.png",
+            bird: "assets/bird.png",
+            fish: "assets/fish.png",
+          },
+          // 5 easy rounds for nonverbal ~4yo: zoomed parts + one silhouette
+          rounds: [
+            {
+              mode: "crop",
+              clue: "assets/quiz_cat_ear.png",
+              correct: "cat",
+              choices: ["cat", "dog", "bird"],
+            },
+            {
+              mode: "crop",
+              clue: "assets/quiz_dog_nose.png",
+              correct: "dog",
+              choices: ["dog", "cat", "fish"],
+            },
+            {
+              mode: "crop",
+              clue: "assets/quiz_bird_beak.png",
+              correct: "bird",
+              choices: ["bird", "fish", "cat"],
+            },
+            {
+              mode: "crop",
+              clue: "assets/quiz_fish_tail.png",
+              correct: "fish",
+              choices: ["fish", "bird", "dog"],
+            },
+            {
+              mode: "silhouette",
+              clue: "assets/dog.png",
+              correct: "dog",
+              choices: ["dog", "cat", "bird"],
+            },
+          ],
+        },
+      };
+
+      const animalsRow = document.getElementById("animals-row");
+      const homesRow = document.getElementById("homes-row");
+      const progress = document.getElementById("progress");
+      const celebrate = document.getElementById("celebrate");
+      const againBtn = document.getElementById("again");
+      const hint = document.getElementById("hint");
+      const playTitle = document.getElementById("play-title");
+      const celebrateMsg = document.getElementById("celebrate-msg");
+
+      let currentPack = PACKS.animals;
+      let matched = new Set();
+      let drag = null;
+      let activity = "match"; // "match" | "choose" | "sequence"
+      let currentChoosePack = CHOOSE_PACKS.animalsBelong;
+      let chooseOrder = [];
+      let chooseIndex = 0;
+      let chooseLocked = false;
+      let chooseCorrectCount = 0;
+
+      let currentSequencePack = SEQUENCE_PACKS.dogDay;
+      let seqPlaced = new Set(); // step indices placed
+      let seqDrag = null;
+      let seqTapArmed = null;
+
+      let currentCategoryPack = CATEGORY_PACKS.animalsVehicles;
+      let catPlaced = new Set(); // item ids placed
+      let catDrag = null;
+      let catTapArmed = null;
+
+      let currentQuizPack = QUIZ_PACKS.animalsEasy;
+      let quizOrder = [];
+      let quizIndex = 0;
+      let quizLocked = false;
+      let quizCorrectCount = 0;
+
+      function showScreen(id) {
+        document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+        const el = document.getElementById("screen-" + id);
+        if (el) el.classList.add("active");
+        // cancel any in-progress drag when leaving play
+        if (id !== "play" && drag) {
+          clearDragListeners();
+          if (drag.lifted && drag.el) {
+            returnToSlot(drag.el, drag.fromSlot, false);
+          }
+          drag = null;
+        }
+        if (id !== "sequence-play" && seqDrag) {
+          clearSeqDragListeners();
+          if (seqDrag.lifted && seqDrag.el) {
+            returnSeqToPool(seqDrag.el, seqDrag.fromSlot, false);
+          }
+          seqDrag = null;
+        }
+        if (id !== "categories-play" && catDrag) {
+          clearCatDragListeners();
+          if (catDrag.lifted && catDrag.el) {
+            returnCatToPool(catDrag.el, catDrag.fromSlot, false);
+          }
+          catDrag = null;
+        }
+        if (id !== "play" && id !== "choose-play" && id !== "sequence-play" && id !== "categories-play") {
+          celebrate.classList.remove("show");
+          celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        }
+      }
+
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function updateProgress() {
+        const dots = progress.querySelectorAll(".dot");
+        dots.forEach((d, i) => d.classList.toggle("on", i < matched.size));
+      }
+
+      function buildPackGrid() {
+        const grid = document.getElementById("pack-grid");
+        grid.innerHTML = "";
+        Object.values(PACKS).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label);
+
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          pack.preview.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          btn.addEventListener("click", () => startPack(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function startPack(packId) {
+        activity = "match";
+        currentPack = PACKS[packId] || PACKS.animals;
+        playTitle.textContent = currentPack.playTitle;
+        celebrateMsg.textContent = currentPack.celebrate;
+        showScreen("play");
+        build();
+      }
+
+      function build() {
+        matched = new Set();
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        animalsRow.innerHTML = "";
+        homesRow.innerHTML = "";
+        updateProgress();
+        hint.textContent = "גררו עם האצבע · אין צורך לדבר";
+
+        const PAIRS = currentPack.pairs;
+        const animals = shuffle(PAIRS);
+        const homes = shuffle(PAIRS);
+
+        animals.forEach((p) => {
+          const slot = document.createElement("div");
+          slot.className = "slot";
+          slot.dataset.slotFor = p.id;
+
+          const animal = document.createElement("div");
+          animal.className = "animal";
+          animal.dataset.id = p.id;
+          animal.setAttribute("role", "img");
+          animal.setAttribute("aria-label", p.id);
+
+          const img = document.createElement("img");
+          img.className = "card-img";
+          img.src = p.animal;
+          img.alt = "";
+          img.draggable = false;
+
+          animal.appendChild(img);
+          slot.appendChild(animal);
+          animalsRow.appendChild(slot);
+
+          animal.addEventListener("pointerdown", onPointerDown);
+        });
+
+        homes.forEach((p) => {
+          const home = document.createElement("div");
+          home.className = "home";
+          home.dataset.accepts = p.id;
+          home.dataset.homeId = p.homeId;
+
+          const img = document.createElement("img");
+          img.className = "card-img";
+          img.src = p.home;
+          img.alt = "";
+          img.draggable = false;
+
+          home.appendChild(img);
+          homesRow.appendChild(home);
+        });
+      }
+
+      const DRAG_THRESHOLD = 8;
+
+      function clearDragListeners() {
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+        document.removeEventListener("pointercancel", onPointerUp);
+      }
+
+      function onPointerDown(e) {
+        const el = e.currentTarget;
+        if (el.classList.contains("matched")) return;
+        if (drag) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        e.preventDefault();
+
+        const rect = el.getBoundingClientRect();
+        drag = {
+          el,
+          pointerId: e.pointerId,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          homeEl: null,
+          fromSlot: el.parentElement,
+          lifted: false,
+        };
+
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+        document.addEventListener("pointercancel", onPointerUp);
+      }
+
+      function liftCard() {
+        if (!drag || drag.lifted) return;
+        const el = drag.el;
+        drag.lifted = true;
+
+        const ghost = document.createElement("div");
+        ghost.className = "animal-ghost";
+        ghost.setAttribute("aria-hidden", "true");
+        const ghostImg = el.querySelector("img");
+        if (ghostImg) {
+          const g = ghostImg.cloneNode(true);
+          g.className = "card-img";
+          ghost.appendChild(g);
+        }
+        if (drag.fromSlot) {
+          drag.fromSlot.appendChild(ghost);
+          drag.fromSlot.classList.add("empty");
+          drag.ghost = ghost;
+        }
+
+        el.classList.add("dragging");
+        el.style.position = "fixed";
+        el.style.left = drag.startLeft + "px";
+        el.style.top = drag.startTop + "px";
+        el.style.width = drag.width + "px";
+        el.style.height = drag.height + "px";
+        el.style.inset = "auto";
+        el.style.margin = "0";
+        el.style.opacity = "0.98";
+        el.style.zIndex = "50";
+        el.style.pointerEvents = "none";
+        document.body.appendChild(el);
+      }
+
+      function onPointerMove(e) {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        e.preventDefault();
+
+        if (!drag.lifted) {
+          const dx = e.clientX - drag.startX;
+          const dy = e.clientY - drag.startY;
+          if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+          liftCard();
+        }
+
+        const x = e.clientX - drag.offsetX;
+        const y = e.clientY - drag.offsetY;
+        drag.el.style.left = x + "px";
+        drag.el.style.top = y + "px";
+
+        const cx = e.clientX;
+        const cy = e.clientY;
+        let over = null;
+        homesRow.querySelectorAll(".home:not(.matched)").forEach((h) => {
+          const r = h.getBoundingClientRect();
+          const hit = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+          h.classList.toggle("over", hit);
+          if (hit) over = h;
+        });
+        drag.homeEl = over;
+      }
+
+      function resetCardStyles(el) {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.height = "";
+        el.style.inset = "";
+        el.style.margin = "";
+        el.style.opacity = "";
+        el.style.zIndex = "";
+        el.style.pointerEvents = "";
+        el.classList.remove("dragging");
+      }
+
+      function returnToSlot(el, fromSlot, withShake) {
+        if (drag && drag.ghost && drag.ghost.parentElement) {
+          drag.ghost.remove();
+          drag.ghost = null;
+        }
+        if (fromSlot) {
+          fromSlot.classList.remove("empty");
+          fromSlot.appendChild(el);
+        }
+        resetCardStyles(el);
+        if (withShake) {
+          el.classList.remove("shake");
+          void el.offsetWidth;
+          el.classList.add("shake");
+          el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+        }
+      }
+
+      function placeOnHome(el, home) {
+        if (drag && drag.ghost && drag.ghost.parentElement) {
+          drag.ghost.remove();
+          drag.ghost = null;
+        }
+        home.classList.remove("over");
+        home.classList.add("matched");
+        el.classList.add("matched");
+        resetCardStyles(el);
+        el.style.position = "absolute";
+        el.style.inset = "6%";
+        const homeImg = home.querySelector(":scope > .card-img");
+        if (homeImg) homeImg.style.opacity = "0.22";
+        home.appendChild(el);
+
+        if (drag && drag.fromSlot) {
+          drag.fromSlot.classList.add("empty");
+        }
+
+        matched.add(el.dataset.id);
+        updateProgress();
+
+        if (matched.size === currentPack.pairs.length) {
+          setTimeout(showCelebrate, 420);
+        }
+      }
+
+      function onPointerUp(e) {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        e.preventDefault();
+
+        const el = drag.el;
+        const home = drag.homeEl;
+        const fromSlot = drag.fromSlot;
+        const wasLifted = drag.lifted;
+
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+        clearDragListeners();
+
+        homesRow.querySelectorAll(".home").forEach((h) => h.classList.remove("over"));
+
+        if (!wasLifted) {
+          drag = null;
+          return;
+        }
+
+        if (home && home.dataset.accepts === el.dataset.id) {
+          placeOnHome(el, home);
+        } else {
+          returnToSlot(el, fromSlot, !!home);
+        }
+
+        drag = null;
+      }
+
+      function showCelebrate() {
+        hint.textContent = "";
+        const ch = document.getElementById("choose-hint");
+        const sh = document.getElementById("sequence-hint");
+        const cath = document.getElementById("categories-hint");
+        if (ch) ch.textContent = "";
+        if (sh) sh.textContent = "";
+        if (cath) cath.textContent = "";
+        spawnConfetti();
+        celebrate.classList.add("show");
+      }
+
+      function spawnConfetti() {
+        const colors = ["#6dca88", "#f6c56b", "#7eb6e8", "#f0a0b8", "#b39ddb", "#ffd54f"];
+        for (let i = 0; i < 36; i++) {
+          const c = document.createElement("div");
+          c.className = "confetti";
+          c.style.left = Math.random() * 100 + "vw";
+          c.style.background = colors[i % colors.length];
+          c.style.animationDuration = 1.6 + Math.random() * 1.6 + "s";
+          c.style.animationDelay = Math.random() * 0.4 + "s";
+          c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+          celebrate.appendChild(c);
+        }
+      }
+
+
+      // ---- Choose (בחירה) ----
+      const choosePrompt = document.getElementById("choose-prompt");
+      const choosePromptImg = document.getElementById("choose-prompt-img");
+      const chooseChoices = document.getElementById("choose-choices");
+      const chooseProgress = document.getElementById("choose-progress");
+      const chooseHint = document.getElementById("choose-hint");
+      const choosePlayTitle = document.getElementById("choose-play-title");
+
+      function buildChoosePackGrid() {
+        const grid = document.getElementById("choose-pack-grid");
+        grid.innerHTML = "";
+        Object.values(CHOOSE_PACKS).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label + " " + (pack.subtitle || ""));
+
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          pack.preview.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
+          btn.addEventListener("click", () => startChoosePack(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function startChoosePack(packId) {
+        activity = "choose";
+        currentChoosePack = CHOOSE_PACKS[packId] || CHOOSE_PACKS.animalsBelong;
+        choosePlayTitle.textContent = currentChoosePack.playTitle;
+        celebrateMsg.textContent = currentChoosePack.celebrate;
+        showScreen("choose-play");
+        buildChoose();
+      }
+
+      function buildChooseProgressDots(n) {
+        chooseProgress.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot";
+          d.dataset.i = String(i);
+          chooseProgress.appendChild(d);
+        }
+      }
+
+      function updateChooseProgress() {
+        const dots = chooseProgress.querySelectorAll(".dot");
+        dots.forEach((d, i) => d.classList.toggle("on", i < chooseCorrectCount));
+      }
+
+      function buildChoose() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        chooseOrder = shuffle(currentChoosePack.rounds.map((_, i) => i));
+        chooseIndex = 0;
+        chooseCorrectCount = 0;
+        chooseLocked = false;
+        buildChooseProgressDots(chooseOrder.length);
+        updateChooseProgress();
+        chooseHint.textContent = "לחצו על התמונה ששייכת · אין צורך לדבר";
+        renderChooseRound();
+      }
+
+      function renderChooseRound() {
+        chooseLocked = false;
+        const round = currentChoosePack.rounds[chooseOrder[chooseIndex]];
+        choosePrompt.classList.remove("ok");
+        choosePromptImg.src = round.prompt;
+        choosePromptImg.alt = "";
+
+        const options = shuffle([
+          { src: round.correct, id: round.correctId, correct: true },
+          ...round.wrong.map((w) => ({ src: w.src, id: w.id, correct: false })),
+        ]);
+
+        chooseChoices.innerHTML = "";
+        options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "choice-card";
+          btn.dataset.id = opt.id;
+          btn.dataset.correct = opt.correct ? "1" : "0";
+          btn.setAttribute("aria-label", opt.id);
+
+          const img = document.createElement("img");
+          img.src = opt.src;
+          img.alt = "";
+          img.draggable = false;
+          btn.appendChild(img);
+
+          btn.addEventListener("click", () => onChooseTap(btn));
+          chooseChoices.appendChild(btn);
+        });
+      }
+
+      function onChooseTap(btn) {
+        if (chooseLocked) return;
+        if (btn.dataset.correct === "1") {
+          chooseLocked = true;
+          btn.classList.add("correct");
+          choosePrompt.classList.add("ok");
+          chooseChoices.querySelectorAll(".choice-card").forEach((c) => {
+            c.disabled = true;
+            if (c !== btn) c.classList.add("dim");
+          });
+          chooseCorrectCount += 1;
+          updateChooseProgress();
+          const done = chooseCorrectCount >= chooseOrder.length;
+          setTimeout(() => {
+            if (done) {
+              showCelebrate();
+            } else {
+              chooseIndex += 1;
+              renderChooseRound();
+            }
+          }, 700);
+        } else {
+          btn.classList.remove("wrong");
+          void btn.offsetWidth;
+          btn.classList.add("wrong");
+          btn.addEventListener("animationend", () => btn.classList.remove("wrong"), { once: true });
+        }
+      }
+
+
+      // ---- Sequence (רצף) ----
+      const seqSlots = document.getElementById("seq-slots");
+      const seqPool = document.getElementById("seq-pool");
+      const seqProgress = document.getElementById("sequence-progress");
+      const seqHint = document.getElementById("sequence-hint");
+      const seqPlayTitle = document.getElementById("sequence-play-title");
+
+      function buildSequencePackGrid() {
+        const grid = document.getElementById("sequence-pack-grid");
+        grid.innerHTML = "";
+        Object.values(SEQUENCE_PACKS).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label + " " + (pack.subtitle || ""));
+
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          // show first 4 of 5 for grid layout consistency
+          pack.preview.slice(0, 4).forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
+          btn.addEventListener("click", () => startSequencePack(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function startSequencePack(packId) {
+        activity = "sequence";
+        currentSequencePack = SEQUENCE_PACKS[packId] || SEQUENCE_PACKS.dogDay;
+        seqPlayTitle.textContent = currentSequencePack.playTitle;
+        celebrateMsg.textContent = currentSequencePack.celebrate;
+        showScreen("sequence-play");
+        buildSequence();
+      }
+
+      function buildSeqProgressDots(n) {
+        seqProgress.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot";
+          d.dataset.i = String(i);
+          seqProgress.appendChild(d);
+        }
+      }
+
+      function updateSeqProgress() {
+        const dots = seqProgress.querySelectorAll(".dot");
+        dots.forEach((d, i) => d.classList.toggle("on", i < seqPlaced.size));
+      }
+
+      function nextEmptySeqIndex() {
+        const n = currentSequencePack.steps.length;
+        for (let i = 0; i < n; i++) {
+          if (!seqPlaced.has(i)) return i;
+        }
+        return -1;
+      }
+
+      function markNextTarget() {
+        const next = nextEmptySeqIndex();
+        seqSlots.querySelectorAll(".seq-slot").forEach((s) => {
+          s.classList.toggle("next-target", !s.classList.contains("filled") && Number(s.dataset.index) === next);
+        });
+      }
+
+      function buildSeqHintStrip(steps) {
+        const strip = document.getElementById("seq-hint-strip");
+        if (!strip) return;
+        strip.innerHTML = "";
+        steps.forEach((step, i) => {
+          if (i > 0) {
+            const arrow = document.createElement("span");
+            arrow.className = "seq-hint-arrow";
+            arrow.textContent = "→";
+            arrow.setAttribute("aria-hidden", "true");
+            strip.appendChild(arrow);
+          }
+          const item = document.createElement("div");
+          item.className = "seq-hint-item";
+          const num = document.createElement("span");
+          num.className = "seq-hint-num";
+          num.textContent = String(i + 1);
+          const img = document.createElement("img");
+          img.src = step.src;
+          img.alt = "";
+          img.draggable = false;
+          item.appendChild(num);
+          item.appendChild(img);
+          strip.appendChild(item);
+        });
+      }
+
+      function softWrong(el) {
+        if (!el) return;
+        el.classList.remove("shake");
+        void el.offsetWidth;
+        el.classList.add("shake");
+        el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+      }
+
+      function buildSequence() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        seqPlaced = new Set();
+        seqDrag = null;
+        seqTapArmed = null;
+        const steps = currentSequencePack.steps;
+        const n = steps.length;
+        const board = document.querySelector(".seq-board");
+        if (board) board.style.setProperty("--seq-cols", String(n));
+        seqSlots.style.setProperty("--seq-cols", String(n));
+        seqPool.style.setProperty("--seq-cols", String(n));
+        buildSeqProgressDots(n);
+        updateSeqProgress();
+        seqHint.textContent = "גררו או לחצו — יש רמז למעלה";
+        buildSeqHintStrip(steps);
+
+        seqSlots.innerHTML = "";
+        seqPool.innerHTML = "";
+
+        steps.forEach((step, i) => {
+          const slot = document.createElement("div");
+          slot.className = "seq-slot";
+          slot.dataset.index = String(i);
+          slot.dataset.accepts = step.id;
+          const num = document.createElement("span");
+          num.className = "step-num";
+          num.textContent = String(i + 1);
+          slot.appendChild(num);
+          seqSlots.appendChild(slot);
+        });
+
+        const poolSteps = steps.map((s, i) => ({ ...s, index: i }));
+        const prefill = !!currentSequencePack.prefillFirst;
+        const poolSource = prefill ? poolSteps.slice(1) : poolSteps;
+
+        shuffle(poolSource).forEach((step) => {
+          const poolSlot = document.createElement("div");
+          poolSlot.className = "seq-pool-slot";
+          poolSlot.dataset.poolFor = step.id;
+
+          const tile = document.createElement("div");
+          tile.className = "seq-tile";
+          tile.dataset.id = step.id;
+          tile.dataset.index = String(step.index);
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", step.id);
+
+          const img = document.createElement("img");
+          img.className = "card-img";
+          img.src = step.src;
+          img.alt = "";
+          img.draggable = false;
+          tile.appendChild(img);
+
+          poolSlot.appendChild(tile);
+          seqPool.appendChild(poolSlot);
+
+          tile.addEventListener("pointerdown", onSeqPointerDown);
+        });
+
+        // keep empty pool placeholders so grid stays balanced (optional 1 empty when prefilled)
+        if (prefill) {
+          const empty = document.createElement("div");
+          empty.className = "seq-pool-slot empty";
+          empty.setAttribute("aria-hidden", "true");
+          seqPool.appendChild(empty);
+        }
+
+        if (prefill && steps.length > 0) {
+          const first = steps[0];
+          const slot = seqSlots.querySelector('.seq-slot[data-index="0"]');
+          const tile = document.createElement("div");
+          tile.className = "seq-tile placed";
+          tile.dataset.id = first.id;
+          tile.dataset.index = "0";
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", first.id);
+          const img = document.createElement("img");
+          img.className = "card-img";
+          img.src = first.src;
+          img.alt = "";
+          img.draggable = false;
+          tile.appendChild(img);
+          tile.style.position = "absolute";
+          tile.style.inset = "5%";
+          slot.appendChild(tile);
+          slot.classList.add("filled");
+          seqPlaced.add(0);
+          updateSeqProgress();
+        }
+
+        markNextTarget();
+      }
+
+      function clearSeqDragListeners() {
+        document.removeEventListener("pointermove", onSeqPointerMove);
+        document.removeEventListener("pointerup", onSeqPointerUp);
+        document.removeEventListener("pointercancel", onSeqPointerUp);
+      }
+
+      function onSeqPointerDown(e) {
+        const el = e.currentTarget;
+        if (el.classList.contains("placed")) return;
+        if (seqDrag) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        e.preventDefault();
+
+        const rect = el.getBoundingClientRect();
+        seqDrag = {
+          el,
+          pointerId: e.pointerId,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          slotEl: null,
+          fromSlot: el.parentElement,
+          lifted: false,
+        };
+
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
+        document.addEventListener("pointermove", onSeqPointerMove);
+        document.addEventListener("pointerup", onSeqPointerUp);
+        document.addEventListener("pointercancel", onSeqPointerUp);
+      }
+
+      function liftSeqTile() {
+        if (!seqDrag || seqDrag.lifted) return;
+        const el = seqDrag.el;
+        seqDrag.lifted = true;
+
+        const ghost = document.createElement("div");
+        ghost.className = "seq-tile-ghost";
+        ghost.setAttribute("aria-hidden", "true");
+        const ghostImg = el.querySelector("img");
+        if (ghostImg) {
+          const g = ghostImg.cloneNode(true);
+          g.className = "card-img";
+          ghost.appendChild(g);
+        }
+        if (seqDrag.fromSlot) {
+          seqDrag.fromSlot.appendChild(ghost);
+          seqDrag.fromSlot.classList.add("empty");
+          seqDrag.ghost = ghost;
+        }
+
+        el.classList.add("dragging");
+        el.style.position = "fixed";
+        el.style.left = seqDrag.startLeft + "px";
+        el.style.top = seqDrag.startTop + "px";
+        el.style.width = seqDrag.width + "px";
+        el.style.height = seqDrag.height + "px";
+        el.style.inset = "auto";
+        el.style.margin = "0";
+        el.style.opacity = "0.98";
+        el.style.zIndex = "50";
+        el.style.pointerEvents = "none";
+        document.body.appendChild(el);
+      }
+
+      function onSeqPointerMove(e) {
+        if (!seqDrag || e.pointerId !== seqDrag.pointerId) return;
+        e.preventDefault();
+
+        if (!seqDrag.lifted) {
+          const dx = e.clientX - seqDrag.startX;
+          const dy = e.clientY - seqDrag.startY;
+          if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+          liftSeqTile();
+        }
+
+        const x = e.clientX - seqDrag.offsetX;
+        const y = e.clientY - seqDrag.offsetY;
+        seqDrag.el.style.left = x + "px";
+        seqDrag.el.style.top = y + "px";
+
+        const cx = e.clientX;
+        const cy = e.clientY;
+        let over = null;
+        seqSlots.querySelectorAll(".seq-slot:not(.filled)").forEach((s) => {
+          const r = s.getBoundingClientRect();
+          const hit = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+          s.classList.toggle("over", hit);
+          if (hit) over = s;
+        });
+        seqDrag.slotEl = over;
+      }
+
+      function resetSeqTileStyles(el) {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.height = "";
+        el.style.inset = "";
+        el.style.margin = "";
+        el.style.opacity = "";
+        el.style.zIndex = "";
+        el.style.pointerEvents = "";
+        el.classList.remove("dragging");
+      }
+
+      function returnSeqToPool(el, fromSlot, withShake) {
+        if (seqDrag && seqDrag.ghost && seqDrag.ghost.parentElement) {
+          seqDrag.ghost.remove();
+          seqDrag.ghost = null;
+        }
+        if (fromSlot) {
+          fromSlot.classList.remove("empty");
+          fromSlot.appendChild(el);
+        }
+        resetSeqTileStyles(el);
+        if (withShake) softWrong(el);
+      }
+
+      function placeSeqTile(el, slot) {
+        if (seqDrag && seqDrag.ghost && seqDrag.ghost.parentElement) {
+          seqDrag.ghost.remove();
+          seqDrag.ghost = null;
+        }
+        slot.classList.remove("over");
+        slot.classList.add("filled");
+        el.classList.add("placed");
+        resetSeqTileStyles(el);
+        el.style.position = "absolute";
+        el.style.inset = "6%";
+        slot.appendChild(el);
+
+        if (seqDrag && seqDrag.fromSlot) {
+          seqDrag.fromSlot.classList.add("empty");
+        }
+
+        const idx = Number(el.dataset.index);
+        seqPlaced.add(idx);
+        updateSeqProgress();
+        markNextTarget();
+
+        if (seqPlaced.size === currentSequencePack.steps.length) {
+          setTimeout(showCelebrate, 420);
+        }
+      }
+
+      function tryTapPlace(el) {
+        const next = nextEmptySeqIndex();
+        if (next < 0) return;
+        const wantId = currentSequencePack.steps[next].id;
+        if (el.dataset.id !== wantId) {
+          softWrong(el);
+          return;
+        }
+        const slot = seqSlots.querySelector('.seq-slot[data-index="' + next + '"]');
+        if (!slot || slot.classList.contains("filled")) return;
+        // treat fromSlot as current parent
+        seqDrag = { el, fromSlot: el.parentElement, ghost: null, lifted: false };
+        placeSeqTile(el, slot);
+        seqDrag = null;
+      }
+
+      function onSeqPointerUp(e) {
+        if (!seqDrag || e.pointerId !== seqDrag.pointerId) return;
+        e.preventDefault();
+
+        const el = seqDrag.el;
+        const slot = seqDrag.slotEl;
+        const fromSlot = seqDrag.fromSlot;
+        const wasLifted = seqDrag.lifted;
+
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+        clearSeqDragListeners();
+
+        seqSlots.querySelectorAll(".seq-slot").forEach((s) => s.classList.remove("over"));
+
+        if (!wasLifted) {
+          // tap → place into next empty slot left-to-right if correct
+          seqDrag = null;
+          tryTapPlace(el);
+          return;
+        }
+
+        if (slot && slot.dataset.accepts === el.dataset.id) {
+          placeSeqTile(el, slot);
+        } else {
+          returnSeqToPool(el, fromSlot, !!slot);
+        }
+
+        seqDrag = null;
+      }
+
+
+
+      // ---- Categories (קטגוריות) ----
+      const catBins = document.getElementById("cat-bins");
+      const catPool = document.getElementById("cat-pool");
+      const catProgress = document.getElementById("categories-progress");
+      const catHint = document.getElementById("categories-hint");
+      const catPlayTitle = document.getElementById("categories-play-title");
+
+      function buildCategoriesPackGrid() {
+        const grid = document.getElementById("categories-pack-grid");
+        grid.innerHTML = "";
+        Object.values(CATEGORY_PACKS).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label + " " + (pack.subtitle || ""));
+
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          pack.preview.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
+          btn.addEventListener("click", () => startCategoriesPack(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function startCategoriesPack(packId) {
+        activity = "categories";
+        currentCategoryPack = CATEGORY_PACKS[packId] || CATEGORY_PACKS.animalsVehicles;
+        catPlayTitle.textContent = currentCategoryPack.playTitle;
+        celebrateMsg.textContent = currentCategoryPack.celebrate;
+        showScreen("categories-play");
+        buildCategories();
+      }
+
+      function buildCatProgressDots(n) {
+        catProgress.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot";
+          d.dataset.i = String(i);
+          catProgress.appendChild(d);
+        }
+      }
+
+      function updateCatProgress() {
+        const dots = catProgress.querySelectorAll(".dot");
+        dots.forEach((d, i) => d.classList.toggle("on", i < catPlaced.size));
+      }
+
+      function clearCatArmed() {
+        catTapArmed = null;
+        if (catPool) {
+          catPool.querySelectorAll(".cat-tile.armed").forEach((t) => t.classList.remove("armed"));
+        }
+        if (catBins) {
+          catBins.querySelectorAll(".cat-bin.armed-target").forEach((b) => b.classList.remove("armed-target"));
+        }
+      }
+
+      function buildCategories() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        catPlaced = new Set();
+        catDrag = null;
+        clearCatArmed();
+        const pack = currentCategoryPack;
+        const n = pack.items.length;
+        buildCatProgressDots(n);
+        updateCatProgress();
+        catHint.textContent = "גררו או לחצו — שייכו לקבוצה";
+
+        catBins.innerHTML = "";
+        catPool.innerHTML = "";
+
+        pack.bins.forEach((bin) => {
+          const el = document.createElement("div");
+          el.className = "cat-bin";
+          el.dataset.cat = bin.id;
+          el.setAttribute("aria-label", bin.label);
+
+          const icon = document.createElement("img");
+          icon.className = "cat-bin-icon";
+          icon.src = bin.icon;
+          icon.alt = "";
+          icon.draggable = false;
+
+          const label = document.createElement("p");
+          label.className = "cat-bin-label";
+          label.textContent = bin.label;
+
+          const drop = document.createElement("div");
+          drop.className = "cat-bin-drop";
+          drop.dataset.cat = bin.id;
+
+          const slotsForBin = pack.items.filter((it) => it.bin === bin.id).length;
+          for (let i = 0; i < slotsForBin; i++) {
+            const slot = document.createElement("div");
+            slot.className = "cat-bin-slot";
+            slot.dataset.cat = bin.id;
+            drop.appendChild(slot);
+          }
+
+          el.appendChild(icon);
+          el.appendChild(label);
+          el.appendChild(drop);
+          el.addEventListener("pointerup", onCatBinTap);
+          catBins.appendChild(el);
+        });
+
+        shuffle(pack.items).forEach((item) => {
+          const poolSlot = document.createElement("div");
+          poolSlot.className = "cat-pool-slot";
+          poolSlot.dataset.poolFor = item.id;
+
+          const tile = document.createElement("div");
+          tile.className = "cat-tile";
+          tile.dataset.id = item.id;
+          tile.dataset.bin = item.bin;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", item.id);
+
+          const img = document.createElement("img");
+          img.className = "card-img";
+          img.src = item.src;
+          img.alt = "";
+          img.draggable = false;
+          tile.appendChild(img);
+
+          poolSlot.appendChild(tile);
+          catPool.appendChild(poolSlot);
+          tile.addEventListener("pointerdown", onCatPointerDown);
+        });
+      }
+
+      function clearCatDragListeners() {
+        document.removeEventListener("pointermove", onCatPointerMove);
+        document.removeEventListener("pointerup", onCatPointerUp);
+        document.removeEventListener("pointercancel", onCatPointerUp);
+      }
+
+      function onCatPointerDown(e) {
+        const el = e.currentTarget;
+        if (el.classList.contains("placed")) return;
+        if (catDrag) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        e.preventDefault();
+        clearCatArmed();
+
+        const rect = el.getBoundingClientRect();
+        catDrag = {
+          el,
+          pointerId: e.pointerId,
+          offsetX: e.clientX - rect.left,
+          offsetY: e.clientY - rect.top,
+          startX: e.clientX,
+          startY: e.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          binEl: null,
+          fromSlot: el.parentElement,
+          lifted: false,
+        };
+
+        try { el.setPointerCapture(e.pointerId); } catch (_) {}
+
+        document.addEventListener("pointermove", onCatPointerMove);
+        document.addEventListener("pointerup", onCatPointerUp);
+        document.addEventListener("pointercancel", onCatPointerUp);
+      }
+
+      function liftCatTile() {
+        if (!catDrag || catDrag.lifted) return;
+        const el = catDrag.el;
+        catDrag.lifted = true;
+
+        const ghost = document.createElement("div");
+        ghost.className = "cat-tile-ghost";
+        ghost.setAttribute("aria-hidden", "true");
+        const ghostImg = el.querySelector("img");
+        if (ghostImg) {
+          const g = ghostImg.cloneNode(true);
+          g.className = "card-img";
+          ghost.appendChild(g);
+        }
+        if (catDrag.fromSlot) {
+          catDrag.fromSlot.appendChild(ghost);
+          catDrag.fromSlot.classList.add("empty");
+          catDrag.ghost = ghost;
+        }
+
+        el.classList.add("dragging");
+        el.style.position = "fixed";
+        el.style.left = catDrag.startLeft + "px";
+        el.style.top = catDrag.startTop + "px";
+        el.style.width = catDrag.width + "px";
+        el.style.height = catDrag.height + "px";
+        el.style.inset = "auto";
+        el.style.margin = "0";
+        el.style.opacity = "0.98";
+        el.style.zIndex = "50";
+        el.style.pointerEvents = "none";
+        document.body.appendChild(el);
+      }
+
+      function onCatPointerMove(e) {
+        if (!catDrag || e.pointerId !== catDrag.pointerId) return;
+        e.preventDefault();
+
+        if (!catDrag.lifted) {
+          const dx = e.clientX - catDrag.startX;
+          const dy = e.clientY - catDrag.startY;
+          if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+          liftCatTile();
+        }
+
+        const x = e.clientX - catDrag.offsetX;
+        const y = e.clientY - catDrag.offsetY;
+        catDrag.el.style.left = x + "px";
+        catDrag.el.style.top = y + "px";
+
+        const cx = e.clientX;
+        const cy = e.clientY;
+        let over = null;
+        catBins.querySelectorAll(".cat-bin").forEach((b) => {
+          const r = b.getBoundingClientRect();
+          const hit = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+          b.classList.toggle("over", hit);
+          if (hit) over = b;
+        });
+        catDrag.binEl = over;
+      }
+
+      function resetCatTileStyles(el) {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.height = "";
+        el.style.inset = "";
+        el.style.margin = "";
+        el.style.opacity = "";
+        el.style.zIndex = "";
+        el.style.pointerEvents = "";
+        el.classList.remove("dragging");
+      }
+
+      function returnCatToPool(el, fromSlot, withShake) {
+        if (catDrag && catDrag.ghost && catDrag.ghost.parentElement) {
+          catDrag.ghost.remove();
+          catDrag.ghost = null;
+        }
+        if (fromSlot) {
+          fromSlot.classList.remove("empty");
+          fromSlot.appendChild(el);
+        }
+        resetCatTileStyles(el);
+        if (withShake) softWrong(el);
+      }
+
+      function nextEmptyBinSlot(binId) {
+        const bin = catBins.querySelector('.cat-bin[data-cat="' + binId + '"]');
+        if (!bin) return null;
+        return bin.querySelector(".cat-bin-slot:not(.filled)");
+      }
+
+      function placeCatTile(el, binEl) {
+        const want = el.dataset.bin;
+        const got = binEl.dataset.cat;
+        if (want !== got) {
+          returnCatToPool(el, catDrag ? catDrag.fromSlot : el.parentElement, true);
+          return false;
+        }
+        const slot = nextEmptyBinSlot(got);
+        if (!slot) {
+          returnCatToPool(el, catDrag ? catDrag.fromSlot : el.parentElement, true);
+          return false;
+        }
+
+        if (catDrag && catDrag.ghost && catDrag.ghost.parentElement) {
+          catDrag.ghost.remove();
+          catDrag.ghost = null;
+        }
+        if (catDrag && catDrag.fromSlot) {
+          catDrag.fromSlot.classList.add("empty");
+        }
+
+        resetCatTileStyles(el);
+        el.classList.add("placed");
+        el.style.position = "absolute";
+        el.style.inset = "4%";
+        el.style.pointerEvents = "none";
+        el.classList.remove("armed");
+
+        const img = el.querySelector("img");
+        slot.innerHTML = "";
+        if (img) {
+          const placed = img.cloneNode(true);
+          placed.className = "";
+          slot.appendChild(placed);
+        }
+        slot.classList.add("filled");
+        const itemId = el.dataset.id;
+        el.remove();
+
+        binEl.classList.remove("over");
+        binEl.classList.add("flash-ok");
+        setTimeout(() => binEl.classList.remove("flash-ok"), 500);
+
+        catPlaced.add(itemId);
+        updateCatProgress();
+        clearCatArmed();
+
+        if (catPlaced.size === currentCategoryPack.items.length) {
+          setTimeout(showCelebrate, 420);
+        }
+        return true;
+      }
+
+      function armCatTile(el) {
+        clearCatArmed();
+        catTapArmed = el;
+        el.classList.add("armed");
+        catBins.querySelectorAll(".cat-bin").forEach((b) => b.classList.add("armed-target"));
+        catHint.textContent = "לחצו על הקבוצה";
+      }
+
+      function onCatBinTap(e) {
+        if (catDrag && catDrag.lifted) return;
+        const bin = e.currentTarget;
+        if (!catTapArmed) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const el = catTapArmed;
+        catDrag = { el, fromSlot: el.parentElement, ghost: null, lifted: false };
+        placeCatTile(el, bin);
+        catDrag = null;
+      }
+
+      function onCatPointerUp(e) {
+        if (!catDrag || e.pointerId !== catDrag.pointerId) return;
+        e.preventDefault();
+
+        const el = catDrag.el;
+        const bin = catDrag.binEl;
+        const fromSlot = catDrag.fromSlot;
+        const wasLifted = catDrag.lifted;
+
+        try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+        clearCatDragListeners();
+        catBins.querySelectorAll(".cat-bin").forEach((b) => b.classList.remove("over"));
+
+        if (!wasLifted) {
+          // tap → arm for bin tap
+          catDrag = null;
+          armCatTile(el);
+          return;
+        }
+
+        if (bin) {
+          placeCatTile(el, bin);
+        } else {
+          returnCatToPool(el, fromSlot, false);
+        }
+        catDrag = null;
+      }
+
+
+
+      // ---- Visual Quiz (חידון ויזואלי) ----
+      const quizClue = document.getElementById("quiz-clue");
+      const quizClueImg = document.getElementById("quiz-clue-img");
+      const quizChoices = document.getElementById("quiz-choices");
+      const quizProgress = document.getElementById("quiz-progress");
+      const quizHint = document.getElementById("quiz-hint");
+      const quizPlayTitle = document.getElementById("quiz-play-title");
+
+      function buildQuizPackGrid() {
+        const grid = document.getElementById("quiz-pack-grid");
+        grid.innerHTML = "";
+        Object.values(QUIZ_PACKS).forEach((pack) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pack-btn";
+          btn.setAttribute("aria-label", pack.label + " " + (pack.subtitle || ""));
+
+          const preview = document.createElement("div");
+          preview.className = "pack-preview";
+          pack.preview.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            preview.appendChild(img);
+          });
+
+          const label = document.createElement("span");
+          label.className = "label";
+          label.textContent = pack.label;
+
+          btn.appendChild(preview);
+          btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
+          btn.addEventListener("click", () => startQuizPack(pack.id));
+          grid.appendChild(btn);
+        });
+      }
+
+      function startQuizPack(packId) {
+        activity = "quiz";
+        currentQuizPack = QUIZ_PACKS[packId] || QUIZ_PACKS.animalsEasy;
+        quizPlayTitle.textContent = currentQuizPack.playTitle;
+        celebrateMsg.textContent = currentQuizPack.celebrate;
+        showScreen("quiz-play");
+        buildQuiz();
+      }
+
+      function buildQuizProgressDots(n) {
+        quizProgress.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          const d = document.createElement("span");
+          d.className = "dot";
+          d.dataset.i = String(i);
+          quizProgress.appendChild(d);
+        }
+      }
+
+      function updateQuizProgress() {
+        const dots = quizProgress.querySelectorAll(".dot");
+        dots.forEach((d, i) => d.classList.toggle("on", i < quizCorrectCount));
+      }
+
+      function buildQuiz() {
+        celebrate.classList.remove("show");
+        celebrate.querySelectorAll(".confetti").forEach((c) => c.remove());
+        quizOrder = shuffle(currentQuizPack.rounds.map((_, i) => i));
+        quizIndex = 0;
+        quizCorrectCount = 0;
+        quizLocked = false;
+        buildQuizProgressDots(quizOrder.length);
+        updateQuizProgress();
+        quizHint.textContent = "לחצו על החיה שמתאימה · אין צורך לדבר";
+        renderQuizRound();
+      }
+
+      function renderQuizRound() {
+        quizLocked = false;
+        const round = currentQuizPack.rounds[quizOrder[quizIndex]];
+        const animals = currentQuizPack.animals;
+
+        quizClue.classList.remove("ok", "silhouetted");
+        quizClueImg.src = round.clue;
+        quizClueImg.alt = "";
+        if (round.mode === "silhouette") {
+          quizClue.classList.add("silhouetted");
+        }
+
+        const options = shuffle(
+          round.choices.map((id) => ({
+            id,
+            src: animals[id],
+            correct: id === round.correct,
+          }))
+        );
+
+        quizChoices.innerHTML = "";
+        options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "quiz-card";
+          btn.dataset.id = opt.id;
+          btn.dataset.correct = opt.correct ? "1" : "0";
+          btn.setAttribute("aria-label", opt.id);
+
+          const img = document.createElement("img");
+          img.src = opt.src;
+          img.alt = "";
+          img.draggable = false;
+          btn.appendChild(img);
+
+          btn.addEventListener("click", () => onQuizTap(btn, round));
+          quizChoices.appendChild(btn);
+        });
+      }
+
+      function onQuizTap(btn, round) {
+        if (quizLocked) return;
+        if (btn.dataset.correct === "1") {
+          quizLocked = true;
+          btn.classList.add("correct");
+          quizClue.classList.add("ok");
+          // reveal silhouette on success
+          if (round.mode === "silhouette") {
+            quizClue.classList.remove("silhouetted");
+            quizClueImg.src = currentQuizPack.animals[round.correct];
+          }
+          quizChoices.querySelectorAll(".quiz-card").forEach((c) => {
+            c.disabled = true;
+            if (c !== btn) c.classList.add("dim");
+          });
+          quizCorrectCount += 1;
+          updateQuizProgress();
+          const done = quizCorrectCount >= quizOrder.length;
+          setTimeout(() => {
+            if (done) {
+              showCelebrate();
+            } else {
+              quizIndex += 1;
+              renderQuizRound();
+            }
+          }, 750);
+        } else {
+          btn.classList.remove("wrong");
+          void btn.offsetWidth;
+          btn.classList.add("wrong");
+          btn.addEventListener("animationend", () => btn.classList.remove("wrong"), { once: true });
+        }
+      }
+
+
+      // ---- Navigation wiring ----
+      document.getElementById("type-grid").addEventListener("click", (e) => {
+        const btn = e.target.closest(".type-btn");
+        if (!btn) return;
+        if (btn.dataset.go === "match-hub") {
+          activity = "match";
+          showScreen("match-hub");
+          return;
+        }
+        if (btn.dataset.go === "choose-hub") {
+          activity = "choose";
+          showScreen("choose-hub");
+          return;
+        }
+        if (btn.dataset.go === "sequence-hub") {
+          activity = "sequence";
+          showScreen("sequence-hub");
+          return;
+        }
+        if (btn.dataset.go === "categories-hub") {
+          activity = "categories";
+          showScreen("categories-hub");
+          return;
+        }
+        if (btn.dataset.go === "quiz-hub") {
+          activity = "quiz";
+          showScreen("quiz-hub");
+          return;
+        }
+        if (btn.dataset.stub) {
+          document.getElementById("soon-title").textContent = btn.dataset.stub;
+          document.getElementById("soon-heading").textContent = btn.dataset.stub;
+          document.getElementById("soon-emoji").textContent = btn.dataset.emoji || "✨";
+          showScreen("soon");
+        }
+      });
+
+      document.getElementById("hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("play-back").addEventListener("click", () => showScreen("match-hub"));
+      document.getElementById("choose-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("choose-play-back").addEventListener("click", () => showScreen("choose-hub"));
+      document.getElementById("sequence-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("sequence-play-back").addEventListener("click", () => showScreen("sequence-hub"));
+      document.getElementById("categories-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("categories-play-back").addEventListener("click", () => showScreen("categories-hub"));
+      document.getElementById("quiz-hub-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("quiz-play-back").addEventListener("click", () => showScreen("quiz-hub"));
+      document.getElementById("soon-back").addEventListener("click", () => showScreen("home"));
+      document.getElementById("soon-home").addEventListener("click", () => showScreen("home"));
+
+      againBtn.addEventListener("click", () => {
+        if (activity === "choose") buildChoose();
+        else if (activity === "sequence") buildSequence();
+        else if (activity === "categories") buildCategories();
+        else if (activity === "quiz") buildQuiz();
+        else build();
+      });
+      againBtn.addEventListener("pointerup", (e) => e.stopPropagation());
+
+      document.getElementById("celebrate-hub").addEventListener("click", () => {
+        celebrate.classList.remove("show");
+        const hub = activity === "choose" ? "choose-hub"
+                  : activity === "sequence" ? "sequence-hub"
+                  : activity === "categories" ? "categories-hub"
+                  : activity === "quiz" ? "quiz-hub"
+                  : "match-hub";
+        showScreen(hub);
+      });
+      document.getElementById("celebrate-home").addEventListener("click", () => {
+        celebrate.classList.remove("show");
+        showScreen("home");
+      });
+
+      document.addEventListener("touchmove", (e) => {
+        if (drag || seqDrag || catDrag) e.preventDefault();
+      }, { passive: false });
+
+      buildPackGrid();
+      buildChoosePackGrid();
+      buildSequencePackGrid();
+      buildCategoriesPackGrid();
+      buildQuizPackGrid();
+      showScreen("home");
+    })();
+  </script>
+</body>
+</html>

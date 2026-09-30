@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="376" viewBox="0 0 656 376">
+
+
+  <!-- outside white -->
+  <rect width="656" height="376" fill="#ffffff"/>
+  <!-- soft outer shadow of card -->
+  <rect x="10" y="12" width="636" height="356" rx="48" ry="48" fill="#00000018"/>
+  <!-- border -->
+  <rect x="8" y="8" width="640" height="360" rx="48" ry="48" fill="#E07A4A"/>
+  <!-- inner pastel -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5EE"/>
+      <stop offset="100%" stop-color="#FFE4D0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.04 0"/>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
+  </defs>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="url(#bgGrad)"/>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="#ffffff" opacity="0.08"/>
+
+  <g filter="url(#softShadow)" transform="translate(0,6)">
+    <defs>
+      <linearGradient id="eng" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FF6B4A"/>
+        <stop offset="100%" stop-color="#C0392B"/>
+      </linearGradient>
+      <linearGradient id="cab" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FF8A6A"/>
+        <stop offset="100%" stop-color="#E8453C"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="330" cy="310" rx="180" ry="12" fill="#00000018"/>
+    <!-- tender / car behind -->
+    <rect x="120" y="195" width="95" height="85" rx="14" fill="#5BA3C4" stroke="#2E6A8A" stroke-width="3.5"/>
+    <rect x="135" y="210" width="65" height="40" rx="8" fill="#A8D8EA" stroke="#3D7FA0" stroke-width="2"/>
+    <rect x="142" y="215" width="16" height="28" rx="4" fill="#ffffff" opacity="0.45"/>
+    <!-- coupler -->
+    <rect x="210" y="230" width="25" height="14" rx="4" fill="#6B6B75" stroke="#3D3D45" stroke-width="2"/>
+    <!-- engine body -->
+    <rect x="230" y="185" width="230" height="100" rx="28" fill="url(#eng)" stroke="#8B1E14" stroke-width="4"/>
+    <path d="M255 200 Q345 190 440 200" fill="none" stroke="#ffffff" stroke-width="9" opacity="0.28" stroke-linecap="round"/>
+    <!-- cab on top -->
+    <rect x="380" y="130" width="90" height="65" rx="12" fill="url(#cab)" stroke="#8B1E14" stroke-width="3.5"/>
+    <rect x="395" y="145" width="60" height="38" rx="8" fill="#A8D8EA" stroke="#3D7FA0" stroke-width="2.5"/>
+    <rect x="402" y="150" width="14" height="26" rx="4" fill="#ffffff" opacity="0.5"/>
+    <!-- smokestack -->
+    <rect x="265" y="115" width="32" height="75" rx="8" fill="#5A5A65" stroke="#2D2D35" stroke-width="3"/>
+    <ellipse cx="281" cy="115" rx="22" ry="12" fill="#8A8A96" stroke="#2D2D35" stroke-width="2.5"/>
+    <!-- smoke puffs -->
+    <circle cx="275" cy="95" r="14" fill="#E8E8EE" opacity="0.85"/>
+    <circle cx="295" cy="78" r="18" fill="#F0F0F5" opacity="0.7"/>
+    <circle cx="318" cy="68" r="12" fill="#F5F5FA" opacity="0.55"/>
+    <!-- cowcatcher -->
+    <path d="M460 250 L520 285 L460 285 Z" fill="#6B6B75" stroke="#3D3D45" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- wheels -->
+    <circle cx="280" cy="290" r="26" fill="#2D2D32" stroke="#1A1A1E" stroke-width="3"/>
+    <circle cx="280" cy="290" r="12" fill="#8A8A96"/>
+    <circle cx="350" cy="290" r="26" fill="#2D2D32" stroke="#1A1A1E" stroke-width="3"/>
+    <circle cx="350" cy="290" r="12" fill="#8A8A96"/>
+    <circle cx="420" cy="290" r="26" fill="#2D2D32" stroke="#1A1A1E" stroke-width="3"/>
+    <circle cx="420" cy="290" r="12" fill="#8A8A96"/>
+    <circle cx="160" cy="285" r="22" fill="#2D2D32" stroke="#1A1A1E" stroke-width="3"/>
+    <circle cx="160" cy="285" r="10" fill="#8A8A96"/>
+    
+  <g>
+    <circle cx="329.0" cy="230" r="9.0" fill="#1a1a1a"/>
+    <circle cx="351.0" cy="230" r="9.0" fill="#1a1a1a"/>
+    <circle cx="327.0" cy="227.5" r="3.0" fill="#ffffff"/>
+    <circle cx="349.0" cy="227.5" r="3.0" fill="#ffffff"/>
+    <path d='M 330.0 242.0 Q 340 250.0 350.0 242.0' fill='none' stroke='#1a1a1a' stroke-width='2.8' stroke-linecap='round'/>
+  </g>
+
+  </g>
+
+</svg>

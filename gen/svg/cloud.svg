@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="376" viewBox="0 0 656 376">
+
+
+  <!-- outside white -->
+  <rect width="656" height="376" fill="#ffffff"/>
+  <!-- soft outer shadow of card -->
+  <rect x="10" y="12" width="636" height="356" rx="48" ry="48" fill="#00000018"/>
+  <!-- border -->
+  <rect x="8" y="8" width="640" height="360" rx="48" ry="48" fill="#7EB6E8"/>
+  <!-- inner pastel -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5FAFF"/>
+      <stop offset="100%" stop-color="#E0F0FF"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.04 0"/>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
+  </defs>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="url(#bgGrad)"/>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="#ffffff" opacity="0.08"/>
+
+  <g filter="url(#softShadow)">
+    <defs>
+      <linearGradient id="cld" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="100%" stop-color="#D4E8FA"/>
+      </linearGradient>
+    </defs>
+    <!-- soft blue sky hint already in bg -->
+    <!-- main cloud puffs -->
+    <g>
+      <ellipse cx="250" cy="210" rx="70" ry="55" fill="url(#cld)" stroke="#A8C8E0" stroke-width="3"/>
+      <ellipse cx="320" cy="175" rx="85" ry="70" fill="url(#cld)" stroke="#A8C8E0" stroke-width="3"/>
+      <ellipse cx="400" cy="205" rx="75" ry="58" fill="url(#cld)" stroke="#A8C8E0" stroke-width="3"/>
+      <ellipse cx="340" cy="230" rx="100" ry="55" fill="url(#cld)" stroke="#A8C8E0" stroke-width="3"/>
+      <ellipse cx="280" cy="225" rx="60" ry="45" fill="url(#cld)"/>
+      <!-- soft highlight -->
+      <ellipse cx="300" cy="165" rx="40" ry="22" fill="#ffffff" opacity="0.7"/>
+      <ellipse cx="380" cy="185" rx="28" ry="16" fill="#ffffff" opacity="0.5"/>
+    </g>
+    <!-- tiny friendly sparkles -->
+    <circle cx="200" cy="140" r="5" fill="#FFE566" opacity="0.8"/>
+    <circle cx="470" cy="150" r="4" fill="#FFE566" opacity="0.7"/>
+  </g>
+
+</svg>

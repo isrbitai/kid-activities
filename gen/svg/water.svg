@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="376" viewBox="0 0 656 376">
+
+
+  <!-- outside white -->
+  <rect width="656" height="376" fill="#ffffff"/>
+  <!-- soft outer shadow of card -->
+  <rect x="10" y="12" width="636" height="356" rx="48" ry="48" fill="#00000018"/>
+  <!-- border -->
+  <rect x="8" y="8" width="640" height="360" rx="48" ry="48" fill="#3D8B9C"/>
+  <!-- inner pastel -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8F7FA"/>
+      <stop offset="100%" stop-color="#C8EBF2"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.04 0"/>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
+  </defs>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="url(#bgGrad)"/>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="#ffffff" opacity="0.08"/>
+
+  <g filter="url(#softShadow)">
+    <defs>
+      <linearGradient id="pond" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7ED6E8"/>
+        <stop offset="50%" stop-color="#3FA8C4"/>
+        <stop offset="100%" stop-color="#2A7A94"/>
+      </linearGradient>
+      <radialGradient id="shine" cx="0.35" cy="0.3" r="0.55">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <!-- pond oval -->
+    <ellipse cx="328" cy="200" rx="210" ry="110" fill="url(#pond)" stroke="#1E5A72" stroke-width="5"/>
+    <ellipse cx="328" cy="200" rx="210" ry="110" fill="url(#shine)"/>
+    <!-- wave lines -->
+    <path d="M170 185 Q230 165 290 185 Q350 205 410 185 Q460 170 500 185"
+          fill="none" stroke="#ffffff" stroke-width="5" opacity="0.4" stroke-linecap="round"/>
+    <path d="M190 220 Q250 205 310 220 Q370 235 430 220 Q470 210 500 220"
+          fill="none" stroke="#ffffff" stroke-width="4" opacity="0.28" stroke-linecap="round"/>
+    <!-- sparkles -->
+    <circle cx="240" cy="155" r="6" fill="#ffffff" opacity="0.7"/>
+    <circle cx="420" cy="160" r="4" fill="#ffffff" opacity="0.6"/>
+    <circle cx="360" cy="240" r="5" fill="#ffffff" opacity="0.45"/>
+    <!-- friendly droplet face optional: small splash drops -->
+    <ellipse cx="175" cy="130" rx="18" ry="26" fill="#5BB8D4" stroke="#2E7A9A" stroke-width="2.5" transform="rotate(-15 175 130)"/>
+    <ellipse cx="480" cy="125" rx="14" ry="20" fill="#7ED6E8" stroke="#2E7A9A" stroke-width="2.5" transform="rotate(18 480 125)"/>
+    <ellipse cx="170" cy="122" rx="5" ry="7" fill="#ffffff" opacity="0.5" transform="rotate(-15 170 122)"/>
+  </g>
+
+</svg>

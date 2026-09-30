@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="376" viewBox="0 0 656 376">
+
+
+  <!-- outside white -->
+  <rect width="656" height="376" fill="#ffffff"/>
+  <!-- soft outer shadow of card -->
+  <rect x="10" y="12" width="636" height="356" rx="48" ry="48" fill="#00000018"/>
+  <!-- border -->
+  <rect x="8" y="8" width="640" height="360" rx="48" ry="48" fill="#4A90A4"/>
+  <!-- inner pastel -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0FAFC"/>
+      <stop offset="100%" stop-color="#D6F0F5"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.04 0"/>
+      <feBlend in="SourceGraphic" mode="overlay"/>
+    </filter>
+  </defs>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="url(#bgGrad)"/>
+  <rect x="22" y="22" width="612" height="332"
+        rx="38" ry="38" fill="#ffffff" opacity="0.08"/>
+
+  <g filter="url(#softShadow)" transform="translate(0,4)">
+    <defs>
+      <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#5BB8D4"/>
+        <stop offset="100%" stop-color="#2E7A9A"/>
+      </linearGradient>
+      <linearGradient id="sail" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FFF6A8"/>
+        <stop offset="100%" stop-color="#F0C84A"/>
+      </linearGradient>
+      <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7EC8E8"/>
+        <stop offset="100%" stop-color="#4A9BC4"/>
+      </linearGradient>
+    </defs>
+    <!-- waves -->
+    <path d="M80 300 Q130 280 180 300 Q230 320 280 300 Q330 280 380 300 Q430 320 480 300 Q530 280 580 300 L580 330 L80 330 Z"
+          fill="url(#wave)" opacity="0.55"/>
+    <path d="M100 315 Q150 298 200 315 Q250 332 300 315 Q350 298 400 315 Q450 332 500 315 Q540 300 570 315"
+          fill="none" stroke="#ffffff" stroke-width="4" opacity="0.35" stroke-linecap="round"/>
+    <!-- mast -->
+    <rect x="318" y="85" width="10" height="175" rx="4" fill="#A67C52" stroke="#7A5635" stroke-width="2"/>
+    <!-- sail -->
+    <path d="M328 95 L328 230 L455 230 Z" fill="#FFE566" stroke="#D4A017" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M335 115 L335 215 L420 215 Z" fill="#ffffff" opacity="0.35"/>
+    <!-- cabin -->
+    <rect x="250" y="200" width="70" height="50" rx="10" fill="#FFF8F0" stroke="#C4A484" stroke-width="3"/>
+    <rect x="262" y="212" width="46" height="28" rx="6" fill="#A8D8EA" stroke="#5BA3C4" stroke-width="2"/>
+    <rect x="268" y="216" width="12" height="18" rx="3" fill="#ffffff" opacity="0.5"/>
+    <!-- hull -->
+    <path d="M145 250 L200 250 L230 310 L440 310 L500 250 L455 250 Z"
+          fill="url(#hull)" stroke="#1E5A72" stroke-width="4" stroke-linejoin="round"/>
+    <!-- hull highlight -->
+    <path d="M200 262 L450 262" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.25" stroke-linecap="round"/>
+    
+  <g>
+    <circle cx="309.55" cy="275" r="8.549999999999999" fill="#1a1a1a"/>
+    <circle cx="330.45" cy="275" r="8.549999999999999" fill="#1a1a1a"/>
+    <circle cx="307.65000000000003" cy="272.625" r="2.8499999999999996" fill="#ffffff"/>
+    <circle cx="328.55" cy="272.625" r="2.8499999999999996" fill="#ffffff"/>
+    <path d='M 310.5 286.4 Q 320 294.0 329.5 286.4' fill='none' stroke='#1a1a1a' stroke-width='2.6599999999999997' stroke-linecap='round'/>
+  </g>
+
+  </g>
+
+</svg>
