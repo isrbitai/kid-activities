@@ -42,7 +42,7 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
-               max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+               max(64px, calc(env(safe-area-inset-bottom) + 52px)) max(14px, env(safe-area-inset-left));
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -504,6 +504,8 @@
       .hint { display: none; }
       .home.matched::after { width: 22px; height: 22px; font-size: 14px; }
       .home-sub { display: none; }
+      .app { padding-bottom: max(52px, calc(env(safe-area-inset-bottom) + 44px)); }
+      .sound-toggle { width: 42px; height: 42px; }
     }
 
     @media (orientation: portrait) and (max-width: 700px) {
@@ -1294,6 +1296,34 @@
       .cat-bin-drop { min-height: 48px; }
     }
 
+    .sound-toggle {
+      position: fixed;
+      z-index: 120;
+      bottom: max(8px, env(safe-area-inset-bottom));
+      left: max(8px, env(safe-area-inset-left));
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 16px;
+      background: white;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .sound-toggle:active { transform: scale(0.95); }
+    .sound-toggle svg { width: 26px; height: 26px; display: block; }
+    .sound-toggle .icon-off { display: none; }
+    .sound-toggle[aria-pressed="false"] {
+      background: #e7eeea;
+      color: var(--soft);
+    }
+    .sound-toggle[aria-pressed="false"] .icon-on { display: none; }
+    .sound-toggle[aria-pressed="false"] .icon-off { display: block; }
+
   </style>
 </head>
 <body>
@@ -1498,6 +1528,18 @@
     </section>
   </div>
 
+  <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="true" aria-label="השתקת קול">
+    <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M4 9.5v5h3.2L12 18.2V5.8L7.2 9.5H4z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15.2 9.2a3.6 3.6 0 010 5.6"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M17.4 7a6.4 6.4 0 010 10"/>
+    </svg>
+    <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M4 9.5v5h3.2L12 18.2V5.8L7.2 9.5H4z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M16 10l4 4M20 10l-4 4"/>
+    </svg>
+  </button>
+
   <div class="celebrate" id="celebrate" role="dialog" aria-modal="true">
     <div class="celebrate-card">
       <div class="stars">⭐ 🎉 ⭐</div>
@@ -1513,6 +1555,135 @@
 
   <script>
     (function () {
+      // Three short sounds. The context is resumed on the first tap or drag
+      // so later chimes (including the celebrate timeout) work on iPad Safari.
+      const sfx = (function () {
+        const SRC = {
+          tap: "assets/sfx-tap.wav",
+          success: "assets/sfx-success.wav",
+          wrong: "assets/sfx-wrong.wav",
+        };
+        const LEVEL = { tap: 0.72, success: 0.8, wrong: 0.7 };
+        const KEY = "kid-activities-muted";
+
+        let muted = false;
+        try { muted = localStorage.getItem(KEY) === "1"; } catch (e) {}
+
+        const html = {};
+        Object.keys(SRC).forEach((name) => {
+          const a = new Audio(SRC[name]);
+          a.preload = "auto";
+          a.volume = LEVEL[name];
+          html[name] = a;
+        });
+
+        let ctx = null;
+        let master = null;
+        const buffers = {};
+        const raw = {};
+        let unlocked = false;
+
+        function prefetch() {
+          Object.keys(SRC).forEach((name) => {
+            fetch(SRC[name]).then((r) => {
+              if (!r.ok) throw new Error("sfx");
+              return r.arrayBuffer();
+            }).then((ab) => {
+              raw[name] = ab;
+              decode(name);
+            }).catch(() => {});
+          });
+        }
+
+        function decode(name) {
+          if (!ctx || !raw[name] || buffers[name]) return;
+          try {
+            ctx.decodeAudioData(raw[name].slice(0), (buf) => {
+              buffers[name] = buf;
+            }, () => {});
+          } catch (e) {}
+        }
+
+        function ensureCtx() {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          if (!ctx) {
+            ctx = new AC();
+            master = ctx.createGain();
+            master.gain.value = 1;
+            master.connect(ctx.destination);
+            Object.keys(SRC).forEach(decode);
+          }
+          return ctx;
+        }
+
+        function unlock() {
+          const c = ensureCtx();
+          if (c && c.state === "suspended") {
+            try { c.resume(); } catch (e) {}
+          }
+          if (c && !unlocked) {
+            try {
+              const buf = c.createBuffer(1, 1, c.sampleRate || 22050);
+              const src = c.createBufferSource();
+              src.buffer = buf;
+              src.connect(c.destination);
+              src.start(0);
+            } catch (e) {}
+          }
+          unlocked = true;
+        }
+
+        function playHtml(name) {
+          const a = html[name];
+          if (!a) return;
+          a.muted = false;
+          a.volume = LEVEL[name];
+          try { a.currentTime = 0; } catch (e) {}
+          let pending;
+          try { pending = a.play(); } catch (e) { return; }
+          if (pending && typeof pending.catch === "function") pending.catch(() => {});
+        }
+
+        function play(name) {
+          if (muted) return;
+          const buf = buffers[name];
+          if (ctx && buf) {
+            if (ctx.state === "suspended") {
+              try { ctx.resume(); } catch (e) {}
+            }
+            try {
+              const src = ctx.createBufferSource();
+              src.buffer = buf;
+              const g = ctx.createGain();
+              g.gain.value = LEVEL[name];
+              src.connect(g);
+              g.connect(master || ctx.destination);
+              src.start(0);
+              return;
+            } catch (e) {}
+          }
+          playHtml(name);
+        }
+
+        prefetch();
+
+        return {
+          unlock,
+          tap() { play("tap"); },
+          success() { play("success"); },
+          wrong() { play("wrong"); },
+          isMuted() { return muted; },
+          setMuted(v) {
+            muted = !!v;
+            try { localStorage.setItem(KEY, muted ? "1" : "0"); } catch (e) {}
+          },
+        };
+      })();
+
+      document.addEventListener("pointerdown", () => { sfx.unlock(); }, { capture: true, passive: true });
+      document.addEventListener("touchstart", () => { sfx.unlock(); }, { capture: true, passive: true });
+
       const PACKS = {
         animals: {
           id: "animals",
@@ -2244,6 +2415,7 @@
           void el.offsetWidth;
           el.classList.add("shake");
           el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+          sfx.wrong();
         }
       }
 
@@ -2268,6 +2440,7 @@
 
         matched.add(el.dataset.id);
         updateProgress();
+        sfx.success();
 
         if (matched.size === currentPack.pairs.length) {
           setTimeout(showCelebrate, 420);
@@ -2314,6 +2487,7 @@
         if (qh) qh.textContent = "";
         spawnConfetti();
         celebrate.classList.add("show");
+        sfx.success();
       }
 
       function spawnConfetti() {
@@ -2575,6 +2749,7 @@
           void el.offsetWidth;
           el.classList.add("wrong");
           el.addEventListener("animationend", () => el.classList.remove("wrong"), { once: true });
+          sfx.wrong();
         }
       }
 
@@ -2604,6 +2779,7 @@
 
         chooseCorrectCount += 1;
         updateChooseProgress();
+        sfx.success();
         const done = chooseCorrectCount >= chooseOrder.length;
         setTimeout(() => {
           if (done) {
@@ -2761,6 +2937,7 @@
         void el.offsetWidth;
         el.classList.add("shake");
         el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true });
+        sfx.wrong();
       }
 
       function buildSequence() {
@@ -3005,6 +3182,7 @@
         seqPlaced.add(idx);
         updateSeqProgress();
         markNextTarget();
+        sfx.success();
 
         if (seqPlaced.size === currentSequencePack.steps.length) {
           setTimeout(showCelebrate, 420);
@@ -3358,6 +3536,7 @@
 
         catPlaced.add(itemId);
         updateCatProgress();
+        sfx.success();
 
         if (catPlaced.size === currentCategoryPack.items.length) {
           setTimeout(showCelebrate, 420);
@@ -3644,6 +3823,7 @@
           void el.offsetWidth;
           el.classList.add("wrong");
           el.addEventListener("animationend", () => el.classList.remove("wrong"), { once: true });
+          sfx.wrong();
         }
       }
 
@@ -3677,6 +3857,7 @@
 
         quizCorrectCount += 1;
         updateQuizProgress();
+        sfx.success();
         const done = quizCorrectCount >= quizOrder.length;
         setTimeout(() => {
           if (done) {
@@ -3720,6 +3901,31 @@
 
 
       // ---- Navigation wiring ----
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest("button.type-btn, button.pack-btn, button.nav-btn, button.btn");
+        if (!btn) return;
+        sfx.tap();
+      });
+
+      const soundToggle = document.getElementById("sound-toggle");
+      function syncSoundToggle() {
+        const on = !sfx.isMuted();
+        soundToggle.setAttribute("aria-pressed", on ? "true" : "false");
+        soundToggle.setAttribute("aria-label", on ? "השתקת קול" : "הפעלת קול");
+      }
+      syncSoundToggle();
+      soundToggle.addEventListener("click", () => {
+        if (sfx.isMuted()) {
+          sfx.setMuted(false);
+          syncSoundToggle();
+          sfx.tap();
+        } else {
+          sfx.tap();
+          sfx.setMuted(true);
+          syncSoundToggle();
+        }
+      });
+
       document.getElementById("type-grid").addEventListener("click", (e) => {
         const btn = e.target.closest(".type-btn");
         if (!btn) return;
