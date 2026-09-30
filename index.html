@@ -1555,15 +1555,17 @@
 
   <script>
     (function () {
-      // Three short sounds. The context is resumed on the first tap or drag
-      // so later chimes (including the celebrate timeout) work on iPad Safari.
+      // Short sounds. The context is resumed on the first tap or drag so a
+      // fanfare scheduled from that gesture still plays on iPad Safari when
+      // the כל הכבוד card appears a moment later.
       const sfx = (function () {
         const SRC = {
           tap: "assets/sfx-tap.wav",
           success: "assets/sfx-success.wav",
           wrong: "assets/sfx-wrong.wav",
+          celebrate: "assets/sfx-celebrate.wav",
         };
-        const LEVEL = { tap: 0.72, success: 0.8, wrong: 0.7 };
+        const LEVEL = { tap: 0.72, success: 0.8, wrong: 0.7, celebrate: 0.92 };
         const KEY = "kid-activities-muted";
 
         let muted = false;
@@ -1582,6 +1584,7 @@
         const buffers = {};
         const raw = {};
         let unlocked = false;
+        let pendingCelebrate = null;
 
         function prefetch() {
           Object.keys(SRC).forEach((name) => {
@@ -1632,11 +1635,43 @@
             } catch (e) {}
           }
           unlocked = true;
+          primeCelebrateHtml();
+        }
+
+        // iPad only allows later HTML playback if that element was started
+        // inside a gesture. Prime the fanfare silently on unlock so the
+        // celebration fallback still plays if the buffer is not decoded yet.
+        function primeCelebrateHtml() {
+          const a = html.celebrate;
+          if (!a || a._primed) return;
+          const token = {};
+          a._primeToken = token;
+          a.muted = true;
+          let pending;
+          try { pending = a.play(); } catch (e) {
+            a.muted = false;
+            return;
+          }
+          const finish = () => {
+            if (a._primeToken !== token) return;
+            try { a.pause(); } catch (e) {}
+            try { a.currentTime = 0; } catch (e) {}
+            a.muted = false;
+            a._primed = true;
+          };
+          if (pending && typeof pending.then === "function") {
+            pending.then(finish).catch(() => {
+              if (a._primeToken === token) a.muted = false;
+            });
+          } else {
+            finish();
+          }
         }
 
         function playHtml(name) {
           const a = html[name];
           if (!a) return;
+          a._primeToken = null;
           a.muted = false;
           a.volume = LEVEL[name];
           try { a.currentTime = 0; } catch (e) {}
@@ -1645,8 +1680,8 @@
           if (pending && typeof pending.catch === "function") pending.catch(() => {});
         }
 
-        function play(name) {
-          if (muted) return;
+        function play(name, when) {
+          if (muted) return null;
           const buf = buffers[name];
           if (ctx && buf) {
             if (ctx.state === "suspended") {
@@ -1657,13 +1692,52 @@
               src.buffer = buf;
               const g = ctx.createGain();
               g.gain.value = LEVEL[name];
+              src._gain = g;
               src.connect(g);
               g.connect(master || ctx.destination);
-              src.start(0);
-              return;
+              src.start(when == null ? 0 : when);
+              return src;
             } catch (e) {}
           }
-          playHtml(name);
+          if (when == null) playHtml(name);
+          return null;
+        }
+
+        function stopPendingCelebrate() {
+          const src = pendingCelebrate;
+          pendingCelebrate = null;
+          if (!src) return;
+          try {
+            if (src._gain) src._gain.gain.value = 0;
+          } catch (e) {}
+          try { src.stop(); } catch (e) {}
+        }
+
+        // Schedule the fanfare from the completing drag (a user gesture) so
+        // iPad Safari will actually play it when the card appears.
+        function celebrateIn(delayMs) {
+          stopPendingCelebrate();
+          if (muted) return false;
+          const delay = Math.max(0, Number(delayMs) || 0);
+          const c = ensureCtx();
+          if (!c || !buffers.celebrate) return false;
+          const src = play("celebrate", c.currentTime + delay / 1000);
+          if (!src) return false;
+          pendingCelebrate = src;
+          src.onended = () => {
+            if (pendingCelebrate === src) pendingCelebrate = null;
+          };
+          return true;
+        }
+
+        function celebrate() {
+          if (muted) {
+            stopPendingCelebrate();
+            return;
+          }
+          // Already armed from the drag that finished the activity.
+          if (pendingCelebrate) return;
+          play("celebrate");
         }
 
         prefetch();
@@ -1673,9 +1747,12 @@
           tap() { play("tap"); },
           success() { play("success"); },
           wrong() { play("wrong"); },
+          celebrate,
+          celebrateIn,
           isMuted() { return muted; },
           setMuted(v) {
             muted = !!v;
+            if (muted) stopPendingCelebrate();
             try { localStorage.setItem(KEY, muted ? "1" : "0"); } catch (e) {}
           },
         };
@@ -2443,6 +2520,7 @@
         sfx.success();
 
         if (matched.size === currentPack.pairs.length) {
+          sfx.celebrateIn(420);
           setTimeout(showCelebrate, 420);
         }
       }
@@ -2487,7 +2565,7 @@
         if (qh) qh.textContent = "";
         spawnConfetti();
         celebrate.classList.add("show");
-        sfx.success();
+        sfx.celebrate();
       }
 
       function spawnConfetti() {
@@ -2781,6 +2859,7 @@
         updateChooseProgress();
         sfx.success();
         const done = chooseCorrectCount >= chooseOrder.length;
+        if (done) sfx.celebrateIn(700);
         setTimeout(() => {
           if (done) {
             showCelebrate();
@@ -3185,6 +3264,7 @@
         sfx.success();
 
         if (seqPlaced.size === currentSequencePack.steps.length) {
+          sfx.celebrateIn(420);
           setTimeout(showCelebrate, 420);
         }
       }
@@ -3539,6 +3619,7 @@
         sfx.success();
 
         if (catPlaced.size === currentCategoryPack.items.length) {
+          sfx.celebrateIn(420);
           setTimeout(showCelebrate, 420);
         }
         return true;
@@ -3859,6 +3940,7 @@
         updateQuizProgress();
         sfx.success();
         const done = quizCorrectCount >= quizOrder.length;
+        if (done) sfx.celebrateIn(750);
         setTimeout(() => {
           if (done) {
             showCelebrate();
