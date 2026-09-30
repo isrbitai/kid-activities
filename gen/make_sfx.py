@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Build three short preschool sound effects (stdlib only).
+"""Build short preschool sound effects (stdlib only).
 
-  assets/sfx-tap.wav      soft light tick
-  assets/sfx-success.wav  short xylophone "yes" (C-E-G)
-  assets/sfx-wrong.wav    soft two-syllable "oops" (falling, not a buzzer)
+  assets/sfx-tap.wav        soft light tick
+  assets/sfx-success.wav    short xylophone "yes" (C-E-G)
+  assets/sfx-wrong.wav      soft two-syllable "oops" (falling, not a buzzer)
+  assets/sfx-celebrate.wav  short fanfare for the כל הכבוד screen
 
 16-bit PCM mono WAV so iPad Safari can decode them without a build step.
 """
@@ -191,11 +192,36 @@ def make_wrong():
     return fade_ends(buf, 0.008, 0.03)
 
 
+def make_celebrate():
+    """Fanfare for the כל הכבוד screen.
+
+    A quick C-major roll up to C6, then a soft sparkle that settles.
+    Distinct from the slower success chirp, which is only C5–E5–G5.
+    About 1.15s. Toy glockenspiel — no brass, no buzzer, no high shriek.
+    """
+    total = 1.16
+    buf = silence(total)
+    # Fast roll that blooms. The success chirp walks these notes slowly
+    # and stops on G5; this one stacks them and lands on a high C.
+    add_into(buf, 0.000, mallet_note(523.25, 0.78, amp=0.40, tau=0.22))  # C5
+    add_into(buf, 0.050, mallet_note(659.25, 0.72, amp=0.34, tau=0.18))  # E5
+    add_into(buf, 0.100, mallet_note(783.99, 0.66, amp=0.30, tau=0.16))  # G5
+    add_into(buf, 0.155, mallet_note(1046.50, 0.78, amp=0.62, tau=0.24))  # C6
+    # Sparkle on chord tones, then settle. The high third stays quiet.
+    add_into(buf, 0.52, mallet_note(783.99, 0.22, amp=0.20, tau=0.07))  # G5
+    add_into(buf, 0.64, mallet_note(1046.50, 0.28, amp=0.36, tau=0.10))  # C6
+    add_into(buf, 0.76, mallet_note(1318.51, 0.22, amp=0.13, tau=0.07))  # E6
+    add_into(buf, 0.88, mallet_note(1046.50, 0.32, amp=0.28, tau=0.12))  # C6
+    buf = [s * 0.84 for s in buf]
+    return fade_ends(buf, 0.003, 0.045)
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     write_wav("sfx-tap.wav", make_tap())
     write_wav("sfx-success.wav", make_success())
     write_wav("sfx-wrong.wav", make_wrong())
+    write_wav("sfx-celebrate.wav", make_celebrate())
 
 
 if __name__ == "__main__":
