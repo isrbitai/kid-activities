@@ -116,9 +116,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: safe center;
       gap: 18px;
       padding: 8px;
+      overflow-y: auto;
     }
 
     .home-title {
@@ -188,7 +189,7 @@
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: clamp(14px, 3vw, 24px);
       width: 100%;
-      max-width: 720px;
+      max-width: 980px;
     }
 
     .pack-btn {
@@ -510,6 +511,8 @@
     @media (orientation: portrait) and (max-width: 700px) {
       .board { grid-template-rows: 1.05fr 1fr; }
       .type-grid { grid-template-columns: repeat(2, 1fr); }
+      .pack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pack-btn { min-height: 150px; padding: 12px 10px 14px; gap: 8px; }
     }
 
     /* ---- Choose (בחירה) ---- */
@@ -692,9 +695,14 @@
       .choose-prompt { max-height: 28vh; }
       .choice-slot { min-height: 90px; max-height: 24vh; }
     }
+    .choose-choices.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     @media (orientation: portrait) and (max-width: 700px) {
       .choose-choices { gap: 10px; }
       .choose-prompt { width: min(70vw, 240px); }
+      .choose-choices.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
 
@@ -1739,6 +1747,25 @@
             { id: "green",  animal: "assets/color_green_leaf.png",  home: "assets/color_green_blob.png",  homeId: "green_blob" },
           ],
         },
+        foodPlaces: {
+          id: "foodPlaces",
+          label: "אוכל",
+          subtitle: "למקום",
+          playTitle: "גררו אוכל למקום",
+          celebrate: "האוכל במקום",
+          preview: [
+            "assets/food_apple.png",
+            "assets/food_milk.png",
+            "assets/food_bread.png",
+            "assets/food_water.png",
+          ],
+          pairs: [
+            { id: "apple", animal: "assets/food_apple.png", home: "assets/food_basket.png", homeId: "basket" },
+            { id: "milk",  animal: "assets/food_milk.png",  home: "assets/food_fridge.png", homeId: "fridge" },
+            { id: "bread", animal: "assets/food_bread.png", home: "assets/food_toaster.png", homeId: "toaster" },
+            { id: "water", animal: "assets/food_water.png", home: "assets/food_cup.png",     homeId: "cup" },
+          ],
+        },
       };
 
 
@@ -1802,6 +1829,72 @@
             },
           ],
         },
+        oddOneOut: {
+          id: "oddOneOut",
+          label: "מה לא שייך?",
+          subtitle: "קל",
+          playTitle: "מה לא שייך?",
+          hint: "גררו את השונה · אין צורך לדבר",
+          celebrate: "מצאתם את השונה!",
+          preview: ["assets/cat.png", "assets/dog.png", "assets/bird.png", "assets/car.png"],
+          // 6 easy rounds: 3 related cards + 1 odd one, dragged onto the question target
+          rounds: [
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/car.png", correctId: "car",
+              wrong: [
+                { src: "assets/cat.png", id: "cat" },
+                { src: "assets/dog.png", id: "dog" },
+                { src: "assets/bird.png", id: "bird" },
+              ],
+            },
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/odd_shoe.png", correctId: "shoe",
+              wrong: [
+                { src: "assets/food_apple.png", id: "apple" },
+                { src: "assets/food_banana.png", id: "banana" },
+                { src: "assets/food_orange.png", id: "orange" },
+              ],
+            },
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/fish.png", correctId: "fish",
+              wrong: [
+                { src: "assets/car.png", id: "car" },
+                { src: "assets/boat.png", id: "boat" },
+                { src: "assets/train.png", id: "train" },
+              ],
+            },
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/odd_ball.png", correctId: "ball",
+              wrong: [
+                { src: "assets/veg_carrot.png", id: "carrot" },
+                { src: "assets/veg_cucumber.png", id: "cucumber" },
+                { src: "assets/veg_broccoli.png", id: "broccoli" },
+              ],
+            },
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/bird.png", correctId: "bird",
+              wrong: [
+                { src: "assets/food_cup.png", id: "cup" },
+                { src: "assets/odd_plate.png", id: "plate" },
+                { src: "assets/odd_spoon.png", id: "spoon" },
+              ],
+            },
+            {
+              prompt: "assets/odd_target.png", promptId: "odd",
+              correct: "assets/food_apple.png", correctId: "apple",
+              wrong: [
+                { src: "assets/odd_teddy.png", id: "teddy" },
+                { src: "assets/odd_ball.png", id: "ball" },
+                { src: "assets/odd_blocks.png", id: "blocks" },
+              ],
+            },
+          ],
+        },
       };
 
 
@@ -1854,6 +1947,31 @@
             { id: "car",   src: "assets/car.png",   bin: "vehicles" },
             { id: "boat",  src: "assets/boat.png",  bin: "vehicles" },
             { id: "train", src: "assets/train.png", bin: "vehicles" },
+          ],
+        },
+        fruitsVeggies: {
+          id: "fruitsVeggies",
+          label: "פירות · ירקות",
+          subtitle: "2 קבוצות · קל",
+          playTitle: "שייכו לקבוצה",
+          celebrate: "הכל במקום הנכון!",
+          preview: [
+            "assets/food_apple.png",
+            "assets/food_banana.png",
+            "assets/veg_carrot.png",
+            "assets/veg_broccoli.png",
+          ],
+          bins: [
+            { id: "fruits", label: "פירות", icon: "assets/bin_fruits.png" },
+            { id: "veggies", label: "ירקות", icon: "assets/bin_veggies.png" },
+          ],
+          items: [
+            { id: "apple",    src: "assets/food_apple.png",    bin: "fruits" },
+            { id: "banana",   src: "assets/food_banana.png",   bin: "fruits" },
+            { id: "orange",   src: "assets/food_orange.png",   bin: "fruits" },
+            { id: "carrot",   src: "assets/veg_carrot.png",    bin: "veggies" },
+            { id: "cucumber", src: "assets/veg_cucumber.png",  bin: "veggies" },
+            { id: "broccoli", src: "assets/veg_broccoli.png",  bin: "veggies" },
           ],
         },
       };
@@ -1909,6 +2027,64 @@
               clue: "assets/dog.png",
               correct: "dog",
               choices: ["dog", "cat", "bird"],
+            },
+          ],
+        },
+        animalSilhouettes: {
+          id: "animalSilhouettes",
+          label: "צלליות",
+          subtitle: "חיות · קל",
+          playTitle: "מי זה?",
+          celebrate: "מצאתם את כולם!",
+          preview: [
+            "assets/quiz_elephant_sil.png",
+            "assets/quiz_rabbit_sil.png",
+            "assets/quiz_giraffe_sil.png",
+            "assets/quiz_duck_sil.png",
+          ],
+          animals: {
+            elephant: "assets/quiz_elephant.png",
+            rabbit:   "assets/quiz_rabbit.png",
+            giraffe:  "assets/quiz_giraffe.png",
+            duck:     "assets/quiz_duck.png",
+            turtle:   "assets/quiz_turtle.png",
+          },
+          // baked silhouettes (real outline art). Drag the matching animal onto the clue.
+          rounds: [
+            {
+              mode: "silhouette",
+              baked: true,
+              clue: "assets/quiz_elephant_sil.png",
+              correct: "elephant",
+              choices: ["elephant", "rabbit", "duck"],
+            },
+            {
+              mode: "silhouette",
+              baked: true,
+              clue: "assets/quiz_rabbit_sil.png",
+              correct: "rabbit",
+              choices: ["rabbit", "giraffe", "turtle"],
+            },
+            {
+              mode: "silhouette",
+              baked: true,
+              clue: "assets/quiz_giraffe_sil.png",
+              correct: "giraffe",
+              choices: ["giraffe", "elephant", "duck"],
+            },
+            {
+              mode: "silhouette",
+              baked: true,
+              clue: "assets/quiz_duck_sil.png",
+              correct: "duck",
+              choices: ["duck", "rabbit", "turtle"],
+            },
+            {
+              mode: "silhouette",
+              baked: true,
+              clue: "assets/quiz_turtle_sil.png",
+              correct: "turtle",
+              choices: ["turtle", "elephant", "giraffe"],
             },
           ],
         },
@@ -2016,7 +2192,7 @@
           const btn = document.createElement("button");
           btn.type = "button";
           btn.className = "pack-btn";
-          btn.setAttribute("aria-label", pack.label);
+          btn.setAttribute("aria-label", pack.label + (pack.subtitle ? " " + pack.subtitle : ""));
 
           const preview = document.createElement("div");
           preview.className = "pack-preview";
@@ -2034,6 +2210,12 @@
 
           btn.appendChild(preview);
           btn.appendChild(label);
+          if (pack.subtitle) {
+            const sub = document.createElement("span");
+            sub.className = "pack-sub";
+            sub.textContent = pack.subtitle;
+            btn.appendChild(sub);
+          }
           btn.addEventListener("click", () => startPack(pack.id));
           grid.appendChild(btn);
         });
@@ -2400,7 +2582,7 @@
         chooseLocked = false;
         buildChooseProgressDots(chooseOrder.length);
         updateChooseProgress();
-        chooseHint.textContent = "גררו את התמונה ששייכת · אין צורך לדבר";
+        chooseHint.textContent = currentChoosePack.hint || "גררו את התמונה ששייכת · אין צורך לדבר";
         renderChooseRound();
       }
 
@@ -2419,6 +2601,7 @@
         ]);
 
         chooseChoices.innerHTML = "";
+        chooseChoices.classList.toggle("cols-4", options.length >= 4);
         options.forEach((opt) => {
           const slot = document.createElement("div");
           slot.className = "choice-slot";
@@ -3480,7 +3663,7 @@
         quizClue.querySelectorAll(".quiz-card").forEach((c) => c.remove());
         quizClueImg.src = round.clue;
         quizClueImg.alt = "";
-        if (round.mode === "silhouette") {
+        if (round.mode === "silhouette" && !round.baked) {
           quizClue.classList.add("silhouetted");
         }
 
